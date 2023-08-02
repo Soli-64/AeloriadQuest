@@ -8,15 +8,22 @@ class Enemy(Entity):
     y = 200
 
     def __init__(self, player, map_manager):
-        super().__init__("boss", self.x, self.y)
+        super().__init__("enemy", self.x, self.y)
         self.player = player
         self.map_manager = map_manager
+        self.set_enemy_animation()
         self.speed = randint(1, 3)
         self.max_health = 50
         self.health = 50
         self.damage = 1
         self.teleport(randint(200, 2000), randint(50, 2000))
         self.direction = 'x'
+
+    def apply_damage(self, amount):
+        self.animations('damaged')
+        self.health -= amount
+        if self.health <= 0:
+            self.remove()
 
     def modifyDirection(self):
         if self.direction == 'x':
@@ -68,9 +75,7 @@ class Enemy(Entity):
 
     def attack(self):
         if self.localize(self.player, 20):
-            self.player.health -= self.damage
-            if self.player.health <= 0:
-                print('Joueur Mort')
+            self.player.apply_damage(self.damage)
 
     def remove(self):
         self.player.add_money(randint(0, 2))

@@ -13,3 +13,12 @@ class Interface:
         self.screen.blit(self.image, (self.x, self.y))
         #text = self.font.render(f'{self.npc_name}: {self.texts[self.text_index][0:self.letter_index]}', False, (0, 0, 0))
         #self.screen.blit(text, (self.X_POSITION + 50, self.Y_POSITION + 20))
+
+
+
+class Screen_Point:
+
+    def __init__(self, x, y, element_size):
+        self.x = x
+        self.y = y
+        self.size = element_size

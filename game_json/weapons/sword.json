@@ -1,0 +1,17 @@
+
+{
+  "item_image": "./images/weapons/item/sword.png",
+  "game_image": "./images/weapons/game/sword.png",
+  "reach": 10,
+  "level_stats": {
+    "1": {
+      "damage": 10
+    },
+    "2": {
+      "damage": 20
+    },
+    "3": {
+      "damage": 30
+    }
+  }
+}

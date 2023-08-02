@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from src.Enemy.enemy import Enemy
+from src.Weapons.projectile import Projectile
 from src.Missioner.missioner import Missioner
 import pygame, pyscroll, pytmx
 
@@ -20,6 +21,7 @@ class Map:
     teleporters: list[Teleporter]
     enemys: list[Enemy]
     missioners: list[Missioner]
+    projectiles: list[Projectile]
     #npcs: list[NPC]
     #weapons: list[Weapon]
 
@@ -36,8 +38,8 @@ class MapManager:
             #Enemy(self.player, self)
         ], missioners=[
             Missioner('missioners/robin', [300, 300], self)
-        ])
-        self.teleport_player("player")
+        ], projectiles=[])
+        #self.teleport_player("player")
 
     def check_collision(self):
         for portal in self.get_map().teleporters:
@@ -75,7 +77,7 @@ class MapManager:
 
     def get_object(self, name): return self.get_map().tmx_data.get_object_by_name(name)
 
-    def register_map(self, name, teleporters=[], npcs=[], enemys=[], missioners=[]):
+    def register_map(self, name, teleporters=[], npcs=[], enemys=[], missioners=[], projectiles=[]):
         # --------------- charger la carte (tmx) -----------
         tmx_data = pytmx.util_pygame.load_pygame(f"./map/{name}.tmx")
         map_data = pyscroll.data.TiledMapData(tmx_data)
@@ -101,7 +103,7 @@ class MapManager:
             group.add(enemy)
 
         # créer un objet Map
-        self.maps[name] = Map(name, walls, group, tmx_data, teleporters, enemys, missioners)
+        self.maps[name] = Map(name, walls, group, tmx_data, teleporters, enemys, missioners, projectiles)
 
     def check_missioner_collision(self):
         for sprite in self.get_group().sprites():
@@ -122,6 +124,9 @@ class MapManager:
         self.get_group().update()
         self.check_collision()
         self.player.update_health_bar(self.screen)
+        for w in self.player.weapons:
+            w.blit_inventory_image()
         for enemy in self.get_map().enemys:
             enemy.save_location()
             enemy.move()
+
