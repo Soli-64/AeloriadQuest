@@ -9,3 +9,6 @@ def pygame_image(path, d):
 def text(text, polic, size):
     font = pg.font.Font(polic, size)
     return font.render(str(text), True, (0, 0, 0))
+
+def percent(width, percent):
+    return (width / 100) * percent

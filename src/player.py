@@ -47,7 +47,10 @@ class Player(Entity):
 
     def add_money(self, amount): self.money += amount
 
-    def apply_damage(self, amount): self.health -= amount
+    def apply_damage(self, amount):
+        self.health -= amount
+        if self.health <= 0:
+            self.game.died()
 
     def remove_money(self, amount):
         if self.money - amount >= 0:
