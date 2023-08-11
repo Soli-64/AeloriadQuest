@@ -1,6 +1,6 @@
 import pygame
 import json
-from src.Items.interface import Interface
+from src.Utils.interface import Interface
 
 
 class Weapon(pygame.sprite.Sprite):
@@ -8,7 +8,7 @@ class Weapon(pygame.sprite.Sprite):
     x = 100
     y = 100
 
-    def __init__(self, name, level, map_manager, player):
+    def __init__(self, name: str, level: int, map_manager, player):
         super().__init__()
         self.name = name
         self.level = level
@@ -16,16 +16,17 @@ class Weapon(pygame.sprite.Sprite):
         self.player = player
         self.position = [self.x, self.y]
         self.get_data()
-        self.icon = Interface(self.map_manager.screen, 205, 368, self.item_image)
+        self.icon = Interface(self.map_manager.screen, 205, 368, self.item_image, [])
 
     def blit_inventory_image(self):
         self.icon.blit()
 
     def get_data(self):
-        with open(f'./game_json/weapons/{self.name}.json', 'r') as file:
+        with open(f'./assets/json/weapons/{self.name}.json', 'r') as file:
             data = json.load(file)
             self.item_image = pygame.image.load(data['item_image'])
             #self.game_image = pygame.image.load(data['game_image'])
+            self.rarity = data['rarity']
             self.reach = data['reach']
             self.damage = data['level_stats'][str(self.level)]['damage']
 
@@ -38,4 +39,4 @@ class Weapon(pygame.sprite.Sprite):
             knock_stats = self.player.localize(enemy, self.player.reach + self.reach)
             if knock_stats:
                 enemy.apply_damage(self.damage)
-
+                self.map_manager.current_mission.check_finished_mission()

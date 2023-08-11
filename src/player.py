@@ -1,8 +1,8 @@
 import pygame
 from src.entity import Entity
 from src.Weapons.weapon import Weapon
-from src.Weapons.fire_weapon import FireWeapon
-from src.Weapons.projectile import Projectile
+from src.Weapons.magic_weapon import MagicWeapon
+import src.Utils.pygame_functions as f_pg
 
 
 class Player(Entity):
@@ -14,7 +14,8 @@ class Player(Entity):
         super().__init__("player", self.x, self.y)
         self.game = game
         self.reach = 15
-        self.speed = 3
+        self.speed = 5
+        self.level = 1
         self.interface_max_health = 200
         self.max_health = 370
         self.health = 350
@@ -42,11 +43,11 @@ class Player(Entity):
             self.weapons.append(w)
         self.select_weapons([0, 1])
 
-    def isEnemy(self):
-        return False
+    def isEnemy(self): return False
 
-    def add_money(self, amount):
-        self.money += amount
+    def add_money(self, amount): self.money += amount
+
+    def apply_damage(self, amount): self.health -= amount
 
     def remove_money(self, amount):
         if self.money - amount >= 0:
@@ -54,32 +55,17 @@ class Player(Entity):
         else:
             self.money = 0
 
-    def update_health_bar(self, surface):
-        if self.max_health <= 200:
-            pygame.draw.rect(surface, (60, 63, 60), [52, 148, 185, 16])
-            pygame.draw.rect(surface, (111, 210, 46), [52, 148, self.health, 16])
-        else :
-            if (self.health > 200):
-                # Première barre
-                pygame.draw.rect(surface, (60, 63, 60), [52, 148, 185, 16])
-                pygame.draw.rect(surface, (111, 210, 46), [52, 148, 185, 16])
-                # Seconde barre
-                pygame.draw.rect(surface, (60, 63, 60), [52, 187, 185, 16])
-                pygame.draw.rect(surface, (111, 210, 46), [52, 187, self.health - 185, 16])
-            else:
-                # Première barre
-                pygame.draw.rect(surface, (60, 63, 60), [52, 148, 185, 16])
-                pygame.draw.rect(surface, (111, 210, 46), [52, 148, self.health, 16])
-                # Seconde barre
-                pygame.draw.rect(surface, (60, 63, 60), [52, 187, 185, 16])
-                pygame.draw.rect(surface, (111, 210, 46), [52, 187, 0, 16])
-
-    def apply_damage(self, amount):
-        self.health -= amount
+    def update_stats(self, surface):
+        # health_barre
+        pygame.draw.rect(surface, (60, 63, 60), [150, 35, self.max_health, 16])
+        pygame.draw.rect(surface, (111, 210, 46), [150, 35, self.health, 16])
+        # money
+        surface.blit(f_pg.text(self.money, None, 50), (1030, 35))
 
     def attack(self):
         if self.selected_weapon:
-            if type(self.selected_weapon) is FireWeapon: self.selected_weapon.fire_attack()
+            if type(self.selected_weapon) is MagicWeapon: self.selected_weapon.magic_attack()
             else: self.selected_weapon.attack()
         else:
             print('selectionne une arme pour attaquer !')
+

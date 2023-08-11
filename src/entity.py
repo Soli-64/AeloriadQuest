@@ -3,9 +3,9 @@ import pygame
 from src.animation import AnimateSprite
 
 class Entity(AnimateSprite):
-    def __init__(self, name, x, y):
+    def __init__(self, name: str, x: int, y: int):
         super().__init__(name)
-        self.sprite_sheet = pygame.image.load(f'./sprite/{name}.png')
+        self.sprite_sheet = pygame.image.load(f'./assets/images/sprite/{name}.png')
         self.image = self.get_image(0, 0)
         self.image.set_colorkey(0, 0)
         self.rect = self.image.get_rect()
@@ -14,7 +14,7 @@ class Entity(AnimateSprite):
         self.old_position = self.position.copy()
         self.speed = 3
 
-    def localizeX(self, point, dist):
+    def localizeX(self, point, dist: int):
         if self.rect.x - point.rect.x <= dist and self.rect.x - point.rect.x >= 0:
             return True
         elif self.rect.x + dist >= point.rect.x and self.rect.x <= point.rect.x:

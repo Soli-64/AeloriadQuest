@@ -1,0 +1,20 @@
+{
+  "sentence1": [
+    "Salut !",
+    "Bonjour,"
+  ],
+  "sentence2": [
+    "Tu cherche du travail ? J'ai une mission...",
+    "Tu veux frapper des monstres",
+    "Tu es en quêtes d'aventure ?"
+  ],
+  "sentence3": [
+    "J'ai trouvé un donjon sur ma propriete, tu peux le vider?",
+    "Je suis explorateur de donjon,  mais un me resiste..."
+  ],
+  "sentence4": [
+    "Accepterais tu cette tache ?",
+    "J'ai de quoi payer evidemment.",
+    "Tu veux aller voir ?"
+  ]
+}

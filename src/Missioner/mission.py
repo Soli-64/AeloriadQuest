@@ -1,7 +1,7 @@
 import pygame
 from random import randint
 from src.Enemy.enemy import Enemy
-
+from src.Items.chest import Chest
 
 class Mission:
 
@@ -9,20 +9,31 @@ class Mission:
         self.level = level
         self.rewards = rewards
         self.map_manager = map_manager
-        self.map = map_name
+        self.map_name = map_name
         self.set_mission()
 
     def set_mission(self):
         teleporters = []
         enemys = []
-        for x in range(0, self.level * 10):
+        for x in range(0, self.level * 1):
             enemys.append(
                 Enemy(self.map_manager.player, self.map_manager)
             )
-        self.map_manager.register_map(name=self.map, teleporters=teleporters, npcs=[], enemys=enemys, missioners=[])
+        self.map_manager.register_map(name=self.map_name, teleporters=teleporters, npcs=[], enemys=enemys, missioners=[], items=[
+
+        ])
 
     def activ_mission(self):
-        self.map_manager.current_map = self.map
+        self.map_manager.current_map = self.map_name
+        self.map_manager.teleport_player("player")
+        point = self.map_manager.get_object('chest')
+        self.map_manager.get_map().items.append(
+            self.map_manager.get_chest(point.x, point.y)
+        )
 
-    def finished_mission(self):
-        self.map_manager.current_map = "carte"
+    def check_finished_mission(self):
+        if not len(self.map_manager.get_map().enemys) > 0:
+            self.map_manager.get_map().teleporters.append(
+                self.map_manager.get_teleporter(self.map_name, 'exit', 'world', 'player')
+            )
+            #self.map_manager.current_map = "world"

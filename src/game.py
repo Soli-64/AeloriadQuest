@@ -2,10 +2,11 @@ import pygame, pyscroll.data, pytmx.util_pygame
 from src.map import MapManager
 from src.player import Player
 from src.Weapons.weapon import Weapon
-from src.Weapons.fire_weapon import FireWeapon
+from src.Weapons.magic_weapon import MagicWeapon
 from src.Enemy.enemy import Enemy
-from src.Items.interface import Interface, Screen_Point
-from src.Utils.pygame_functions import pygame_image
+from src.Utils.interface import Interface, Screen_Point
+from src.Dialogs.dialog import DialogBox
+import src.Utils.pygame_functions as f_pg
 
 class Game:
 
@@ -13,14 +14,14 @@ class Game:
         self.surface = pygame.display.set_mode((1200, 700))
         pygame.display.set_caption("RpgGameMission")
         self.player = Player(self)
-        self.map_manager = MapManager(self.surface, self.player)
+        self.map_manager = MapManager(self.surface, self.player )
         self.player.add_weapons(
-            [Weapon('sword', 1, self.map_manager, self),
-             FireWeapon('gun', 1, self.map_manager, self.player)]
+            [ Weapon('sword', 1, self.map_manager, self.player),
+              MagicWeapon('gun', 1, self.map_manager, self.player)]
         )
-        self.inventory = Interface(self.surface, 220, 50, pygame_image('./images/interfaces/inventory.png', [800, 550]))
-        self.barre_interface = Interface(self.surface, 20, 20, pygame_image('./images/interfaces/left_interface.png', [250, 500]))
-        self.current_weapons_points = [ Screen_Point(120, 348, [50, 50]), Screen_Point(35, 368, [50, 50]), Screen_Point(205, 368, [50, 50]) ]
+        self.dialog_box = DialogBox()
+        self.inventory = Interface(self.surface, 220, 50, f_pg.pygame_image('./assets/images/interfaces/inventory.png', [800, 550]), [])
+        self.coin_box = Interface(self.surface, 930, 10, f_pg.pygame_image('./assets/images/interfaces/coin_box.png', [200, 80]), [])
 
     def update(self):
         self.map_manager.update()
@@ -46,12 +47,20 @@ class Game:
         running = True
         while running:
 
+            # dessin de la map, du joueur et des enemy
             self.map_manager.draw()
 
-            if inventory:
-                self.inventory.blit()
-                for w in self.player.weapons:
-                    w.blit_inventory_image()
+
+            if inventory: self.inventory.blit()
+
+            pygame.draw.rect(self.surface, (255, 255, 255), (20, 20, 100, 140), 4)
+
+            # Interfaces
+            self.coin_box.blit()
+
+            # Ajout des stats du player
+            self.player.update_stats(self.surface)
+
 
             pygame.display.flip()
 
@@ -69,6 +78,8 @@ class Game:
 
     def run(self):
         clock = pygame.time.Clock()
+        black = (0, 0, 0)
+        white = (255, 255, 255)
 
         running = True
         while running:
@@ -76,11 +87,10 @@ class Game:
             self.player.save_location()
             self.handle_input()
             self.map_manager.draw()
+            self.dialog_box.render(self.surface)
             # Interfaces
-            self.barre_interface.blit()
-            for p in self.player.projectiles:
-                p.blit(self.surface)
-                p.move()
+            pygame.draw.rect(self.surface, white, (20, 20, 100, 140), 4)
+            self.coin_box.blit()
             #
             self.update()
 
@@ -93,10 +103,12 @@ class Game:
                     if event.key == pygame.K_SPACE:
                         self.player.attack()
                     elif event.key == pygame.K_v:
-                        self.map_manager.check_missioner_collision()
+                        self.map_manager.check_missioner_collision(self.dialog_box)
                     elif event.key == pygame.K_b:
                         self.pause(True)
                         break
+                    elif event.key == pygame.K_g:
+                        self.map_manager.check_chest_collision()
                     elif event.key == pygame.K_1:
                         self.player.choice_current_weapon(0)
                     elif event.key == pygame.K_2:
