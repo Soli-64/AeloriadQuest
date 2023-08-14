@@ -1,3 +1,5 @@
+import json
+
 import pygame
 from src.entity import Entity
 from src.Weapons.weapon import Weapon
@@ -11,21 +13,32 @@ class Player(Entity):
     y = 100
 
     def __init__(self, game):
-        super().__init__("player", self.x, self.y)
+        super().__init__("player", './assets/images/sprite/player.png', self.x, self.y)
         self.game = game
         self.reach = 15
         self.speed = 5
         self.level = 1
-        self.interface_max_health = 200
-        self.max_health = 370
-        self.health = 350
+        self.max_health = 400
+        self.health = 400
         self.damage = 10
         self.money = 0
-        self.projectiles = []
         self.weapons = []
         self.currents_weapons = []
-        self.selected_weapon = False
-        #self.selected_weapon = self.currents_weapons[0]
+        self.selected_weapon = None
+        self.xp = 0
+        self.munition = {
+            "normal": 20,
+            "petites": 20,
+            "grandes": 10,
+            "lourdes": 5,
+            "explosives": 2,
+            "none": "infinite"
+        }
+
+    def get_json(self):
+        with open('./assets/json/player/level.json', 'r+') as file:
+            data = json.load(file)
+            self.level = data['1']
 
     def choice_current_weapon(self, index):
         self.selected_weapon = self.currents_weapons[index]
@@ -63,12 +76,15 @@ class Player(Entity):
         pygame.draw.rect(surface, (60, 63, 60), [150, 35, self.max_health, 16])
         pygame.draw.rect(surface, (111, 210, 46), [150, 35, self.health, 16])
         # money
-        surface.blit(f_pg.text(self.money, None, 50), (1030, 35))
+        surface.blit(f_pg.text(self.money, None, 50), (self.game.vw - 165, 35))
 
-    def attack(self):
+    def attack(self, type):
         if self.selected_weapon:
-            if type(self.selected_weapon) is MagicWeapon: self.selected_weapon.magic_attack()
-            else: self.selected_weapon.attack()
+            if type == 'magic':
+                self.selected_weapon.magic_attack()
+            elif type == 'fire':
+                self.selected_weapon.fire_attack()
+            else:
+                self.selected_weapon.attack()
         else:
             print('selectionne une arme pour attaquer !')
-

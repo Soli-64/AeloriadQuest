@@ -3,10 +3,10 @@ import pygame
 
 class Interface:
 
-    def __init__(self, screen, x, y, image, rects):
+    def __init__(self, screen, pos, image, rects):
         self.screen = screen
-        self.x = x
-        self.y = y
+        self.x = pos[0]
+        self.y = pos[1]
         self.image = image
         self.rects = rects
 
@@ -25,9 +25,41 @@ class Cadre:
         self.border = border_width
     def blit(self): pygame.draw.rect(self.screen, self.color, self.rect, self.border)
 
-class Screen_Point:
+class Alert:
 
-    def __init__(self, x, y, element_size):
-        self.x = x
-        self.y = y
-        self.size = element_size
+    def __init__(self, game, text, color, time):
+        self.game = game
+        self.text = text
+        self.color = color
+        self.time = time
+        self.font = pygame.font.Font('./assets/fonts/dialog_font.ttf', 18)
+        self.isVisible = True
+        pygame.time.set_timer(self.end(), 15000)
+
+    def end(self):
+        print('test')
+        self.isVisible = False
+
+    def blit(self):
+        if self.isVisible:
+            text = self.font.render(self.text, False, self.color)
+            self.game.surface. blit(text, (100, self.game.vh - 300))
+        else:
+            self.game.alerts.remove(self)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -8,13 +8,17 @@ class Missioner(Entity):
     y = 300
 
     def __init__(self, name, position, map_manager):
-        super().__init__(f"missioners/{name}", self.x, self.y)
+        super().__init__(name, f'./assets/images/sprite/missioners/{name}.png',  self.x, self.y)
+        self.map_manager = map_manager
         self.name = name
         self.position = position
         self.level = round(map_manager.player.level / 2) + 1
-        self.mission = Mission(map_manager, self.level, self.level*100, "dungeon2")
+        self.mission = Mission(map_manager, self.level, self.level*100, "dungeon2", self)
         self.dialog = []
         self.choose_texts()
+
+    def reward_player(self):
+        self.map_manager.player.add_money(self.mission.rewards)
 
     def choose_texts(self):
         with open('./assets/json/texts/missioner_texts.json', 'r+', 1, 'utf8', None, "\r\n") as file:
@@ -24,7 +28,7 @@ class Missioner(Entity):
                 self.dialog.append(text)
 
     def present_mission(self):
-        print('Voici votre mission:')
+        pass
 
     def launch_mission(self):
         self.mission.activ_mission()

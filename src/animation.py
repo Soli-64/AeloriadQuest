@@ -3,10 +3,10 @@ import pygame
 
 class AnimateSprite(pygame.sprite.Sprite):
 
-    def __init__(self, name):
+    def __init__(self, path):
         super().__init__()
-        self.name = name
-        self.sprite_sheet = pygame.image.load(f'./assets/images/sprite/{self.name}.png')
+        self.path = path
+        self.sprite_sheet = pygame.image.load(path)
         self.animation_index = 0
         self.clock = 0
         self.images = {
@@ -28,7 +28,7 @@ class AnimateSprite(pygame.sprite.Sprite):
 
         if self.clock >= 170:
 
-            self.animation_index += 1  # image suivante
+            self.animation_index += 1
 
             if self.animation_index >= len(self.images[name]):
                 self.animation_index = 0

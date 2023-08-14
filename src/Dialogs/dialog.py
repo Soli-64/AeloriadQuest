@@ -3,10 +3,10 @@ import src.Utils.pygame_functions as f_pg
 
 class DialogBox:
 
-    X_POS = 200
-    Y_POS = 550
-
-    def __init__(self):
+    def __init__(self, game):
+        self.game = game
+        self.X_POS = self.game.vw / 5
+        self.Y_POS = self.game.vh - 110
         self.box = f_pg.pygame_image('./assets/images/interfaces/dialog_box.png', [850, 100])
         self.texts = []
         self.text_index = 0

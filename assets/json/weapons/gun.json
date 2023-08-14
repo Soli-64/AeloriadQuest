@@ -4,6 +4,11 @@
   "game_image": "./assets/images/weapons/game/sword.png",
   "reach": 10,
   "rarity": "atypique",
+  "munition_type": "petites",
+  "price": {
+    "buy": 50,
+    "sell": 35
+  },
   "level_stats": {
     "1": {
       "damage": 10

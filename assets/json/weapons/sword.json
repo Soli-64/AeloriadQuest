@@ -3,7 +3,12 @@
   "item_image": "./assets/images/weapons/item/sword.png",
   "game_image": "./assets/images/weapons/game/sword.png",
   "reach": 10,
+  "munition_type": "none",
   "rarity": "common",
+  "price": {
+    "buy": 35,
+    "sell": 20
+  },
   "level_stats": {
     "1": {
       "damage": 10

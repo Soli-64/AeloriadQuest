@@ -1,7 +1,7 @@
 import pygame
 import json
 from src.Utils.interface import Interface
-
+import src.Utils.pygame_functions as f_pg
 
 class Weapon(pygame.sprite.Sprite):
 
@@ -16,7 +16,7 @@ class Weapon(pygame.sprite.Sprite):
         self.player = player
         self.position = [self.x, self.y]
         self.get_data()
-        self.icon = Interface(self.map_manager.screen, 205, 368, self.item_image, [])
+        self.icon = Interface(self.map_manager.screen, [205, 368], self.item_image, [])
 
     def blit_inventory_image(self):
         self.icon.blit()
@@ -24,11 +24,13 @@ class Weapon(pygame.sprite.Sprite):
     def get_data(self):
         with open(f'./assets/json/weapons/{self.name}.json', 'r') as file:
             data = json.load(file)
-            self.item_image = pygame.image.load(data['item_image'])
+            self.item_image = f_pg.pygame_image(data['item_image'], [100, 100])
             #self.game_image = pygame.image.load(data['game_image'])
             self.rarity = data['rarity']
             self.reach = data['reach']
             self.damage = data['level_stats'][str(self.level)]['damage']
+            self.munition_type = data['munition_type']
+            self.munitions = "infinite"
 
     def move(self):
         self.position[0] = self.player.position[0]
@@ -39,4 +41,6 @@ class Weapon(pygame.sprite.Sprite):
             knock_stats = self.player.localize(enemy, self.player.reach + self.reach)
             if knock_stats:
                 enemy.apply_damage(self.damage)
-                self.map_manager.current_mission.check_finished_mission()
+
+    def magic_attack(self): print('test')
+    def fire_attack(self): print('test')

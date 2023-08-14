@@ -8,7 +8,7 @@ class Enemy(Entity):
     y = 200
 
     def __init__(self, player, map_manager):
-        super().__init__("enemys/enemy", self.x, self.y)
+        super().__init__("enemy", './assets/images/sprite/enemys/enemy.png', self.x, self.y)
         self.player = player
         self.map_manager = map_manager
         self.set_enemy_animation()
@@ -80,4 +80,5 @@ class Enemy(Entity):
     def remove(self):
         self.player.add_money(randint(0, 2))
         self.map_manager.get_map().enemys.remove(self)
+        self.map_manager.current_mission.check_finished_mission()
         self.kill()
