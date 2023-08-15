@@ -34,32 +34,12 @@ class Alert:
         self.time = time
         self.font = pygame.font.Font('./assets/fonts/dialog_font.ttf', 18)
         self.isVisible = True
-        pygame.time.set_timer(self.end(), 15000)
+        pygame.time.set_timer(pygame.USEREVENT, 2000)
 
     def end(self):
-        print('test')
-        self.isVisible = False
+        self.game.alerts.remove(self)
 
     def blit(self):
         if self.isVisible:
             text = self.font.render(self.text, False, self.color)
             self.game.surface. blit(text, (100, self.game.vh - 300))
-        else:
-            self.game.alerts.remove(self)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

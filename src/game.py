@@ -4,7 +4,7 @@ from src.map import MapManager
 from src.player import Player
 from src.Weapons.weapon import Weapon
 from src.Weapons.fire_weapon import FireWeapon
-from src.Utils.interface import Interface
+from src.Utils.interface import Interface, Alert
 from src.Dialogs.dialog import DialogBox
 import src.Utils.pygame_functions as f_pg
 from src.Utils.settings import *
@@ -40,7 +40,9 @@ class Game:
             Interface(self.surface, [50, 200], f_pg.pygame_image('./assets/images/interfaces/type/type_e.png', [120, 70]), []),
             Interface(self.surface, [50, 300], f_pg.pygame_image('./assets/images/interfaces/type/type_z.png', [120, 80]), [])
         ]
-        self.alerts = []
+        self.alerts = [
+            Alert(self, 'Hello World', co.WHITE, 0)
+        ]
         #self.get_map_type()
 
     def start(self): self.isPlaying = True
@@ -162,9 +164,9 @@ class Game:
 
                 """for type in self.types:
                     pass
-                    type.blit()
+                    type.blit()"""
                 for alert in self.alerts:
-                    alert.blit()"""
+                    alert.blit()
 
                 # Update du jeu
                 self.update()
@@ -187,6 +189,9 @@ class Game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
+                elif event.type == pygame.USEREVENT:
+                    for alert in self.alerts:
+                        alert.end()
                 elif event.type == VIDEORESIZE:
                     self.resize(event.w, event.h)
                 elif event.type == pygame.MOUSEBUTTONDOWN:

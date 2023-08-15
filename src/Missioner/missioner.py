@@ -13,7 +13,7 @@ class Missioner(Entity):
         self.name = name
         self.position = position
         self.level = round(map_manager.player.level / 2) + 1
-        self.mission = Mission(map_manager, self.level, self.level*100, "dungeon2", self)
+        self.mission = Mission(self.map_manager, self.level, self.level*100, "dungeon2", self)
         self.dialog = []
         self.choose_texts()
 

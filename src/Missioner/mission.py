@@ -21,7 +21,7 @@ class Mission:
             enemys.append(
                 Enemy(self.map_manager.player, self.map_manager)
             )
-        self.map_manager.register_map(name=self.map_name, teleporters=teleporters, enemys=enemys, missioners=[], items=[], projectils=[])
+        self.map_manager.register_map(name=self.map_name, teleporters=teleporters, enemys=enemys, missioners=[], items=[], projectils=[], traiders=[])
 
     def activ_mission(self):
         self.map_manager.current_map = self.map_name
