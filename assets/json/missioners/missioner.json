@@ -1,0 +1,67 @@
+{
+  "positions": [
+    [300, 300],
+    [400, 400],
+    [1296, 684]
+  ],
+  "texts": {
+
+    "fr": {
+      "mission": {
+        "sentence1": [
+          "Salut !",
+          "Bonjour,"
+          ],
+        "sentence2": [
+          "Tu cherche du travail ? J'ai une mission...",
+          "Tu veux frapper des monstres",
+          "Tu es en quêtes d'aventure ?"
+          ],
+        "sentence3": [
+          "J'ai trouvé un donjon sur ma demeure, peux-tu le vider?",
+          "Je suis explorateur de donjon, mais un me resiste..."
+          ],
+        "sentence4": [
+          "Accepterais tu cette tache ?",
+          "J'ai de quoi payer evidemment.",
+          "Tu veux aller voir ?"
+          ]
+      },
+      "reward": {
+        "sentence1": [
+          "Vous avez réussi ?",
+          "Ah, vous êtes de retour."
+          ],
+        "sentence2": [
+          "Bravo, voici votre récompense",
+          "Bon, je suppose que vous voulez l'argent...",
+          "Merci beaucoup, et à bientôt"
+          ]
+      }
+
+    },
+
+    "en": {
+      "sentence1": [
+        "Hi!",
+        "Hello,"
+      ],
+      "sentence2": [
+        "Are you looking for a job? I have a mission...",
+        "Do you want to slay monsters?",
+        "Are you seeking adventure?"
+      ],
+      "sentence3": [
+        "I've found a dungeon near my home, can you clear it out?",
+        "I'm a dungeon delver, but one is giving me trouble..."
+      ],
+      "sentence4": [
+        "Would you accept this task?",
+        "I have payment ready, of course.",
+        "Do you want to check it out?"
+      ]
+    }
+
+  }
+
+}

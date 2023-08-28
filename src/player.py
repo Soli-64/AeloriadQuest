@@ -13,7 +13,8 @@ class Player(Entity):
     y = 100
 
     def __init__(self, game):
-        super().__init__("player", './assets/images/sprite/player.png', self.x, self.y)
+        super().__init__("player2", './assets/images/sprite/player2.png', self.x, self.y)
+
         self.game = game
         self.reach = 15
         self.speed = 5
@@ -22,12 +23,17 @@ class Player(Entity):
         self.health = 400
         self.damage = 10
         self.money = 0
-        self.weapons = []
+        self.inventory = {
+            "weapons": [],
+            "chargers": [],
+            "potions": []
+        }
+        self.weapons = self.inventory["weapons"]
         self.currents_weapons = []
         self.selected_weapon = None
         self.xp = 0
-        self.munition = {
-            "normal": 20,
+        self.munitions = {
+            "normale": 20,
             "petites": 20,
             "grandes": 10,
             "lourdes": 5,
@@ -53,7 +59,7 @@ class Player(Entity):
 
     def add_weapons(self, weapons):
         for w in weapons:
-            self.weapons.append(w)
+            self.inventory['weapons'].append(w)
         self.select_weapons([0, 1])
 
     def isEnemy(self): return False

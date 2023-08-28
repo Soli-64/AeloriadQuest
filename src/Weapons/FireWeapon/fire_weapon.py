@@ -11,7 +11,7 @@ class FireWeapon(Weapon):
         self.map_manager = map_manager
         self.player = player
         self.get_data()
-        self.munitions = self.map_manager.player.munition[self.munition_type]
+        self.munitions = self.map_manager.player.munitions[self.munition_type]
 
     def fire_attack(self):
         if self.munitions > 0:

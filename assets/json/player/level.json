@@ -1,17 +1,17 @@
 {
- "1": {
-   "require_xp": 0
- },
- "2": {
-   "require_xp": 100
- },
- "3": {
-   "require_xp": 500
- },
- "4": {
-   "require_xp": 2000
- },
- "5": {
-   "require_xp": 10000
- }
+   "1": {
+     "require_xp": 0
+   },
+   "2": {
+     "require_xp": 100
+   },
+   "3": {
+     "require_xp": 500
+   },
+   "4": {
+     "require_xp": 2000
+   },
+   "5": {
+     "require_xp": 10000
+   }
  }

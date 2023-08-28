@@ -1,5 +1,6 @@
 import pygame
 import src.Utils.pygame_functions as f_pg
+from src.Missioner.missioner import Missioner
 
 class DialogBox:
 
@@ -15,15 +16,15 @@ class DialogBox:
         self.reading = False
         self.missioner_name = 'default'
 
-    def execute(self, missioner):
-        self.missioner = missioner
-        self.missioner_name = missioner.name
+    def execute(self, func, npc=None):
+        self.npc = npc
+        self.npc_name = npc.name
         if self.reading:
-            return self.next_text()
+            return self.next_text(func)
         else:
             self.reading = True
             self.text_index = 0
-            self.texts = missioner.dialog
+            self.texts = npc.dialog
 
     def render(self, screen):
         if self.reading:
@@ -31,16 +32,16 @@ class DialogBox:
             if self.letter_index >= len(self.texts[self.text_index]):
                 self.letter_index = self.letter_index
             screen.blit(self.box, (self.X_POS, self.Y_POS))
-            text = self.font.render(f'{self.missioner_name}: {self.texts[self.text_index][0:self.letter_index]}', False, (0, 0, 0))
+            text = self.font.render(f'{self.npc_name}: {self.texts[self.text_index][0:self.letter_index]}', False, (0, 0, 0))
             screen.blit(text, (self.X_POS + 75, self.Y_POS + 20))
 
-    def next_text(self):
+    def next_text(self, func):
         self.text_index += 1
         self.letter_index = 0
 
         if self.text_index >= len(self.texts):
             # close dialog
             self.reading = False
-            self.missioner.launch_mission()
-            return self.missioner.mission
+            return func()
+
 

@@ -1,35 +1,73 @@
-import pygame, src.Utils.colors as co, time, json, sys
+import pygame, pygame_gui as pg_gui
+import src.Utils.colors as co, json, sys
 from pygame.locals import *
 from src.map import MapManager
 from src.player import Player
 from src.Weapons.weapon import Weapon
-from src.Weapons.fire_weapon import FireWeapon
-from src.Utils.interface import Interface, Alert
+from src.Weapons.FireWeapon.fire_weapon import FireWeapon
+from src.Elements.interface import Interface #, Alert
 from src.Dialogs.dialog import DialogBox
 import src.Utils.pygame_functions as f_pg
 from src.Utils.settings import *
-
+from src.Elements.menu import Menu
+from src.Elements.inventory import Inventory
+from src.Elements.element import Button
 
 class Game:
 
     def __init__(self):
-        # éléments du moteur du jeu
+
+        # Motors elements of the game
         self.isPlaying = False
         self.isDied = False
+        self.lang = LANG
+        self.get_text()
+        self.missioners_occupied_position = []
+
+        # Window elements
         self.vw = 1200
         self.vh = 700
         self.surface = pygame.display.set_mode((self.vw, self.vh), RESIZABLE)
         pygame.display.set_caption("RpgMission")
+
         # Instances
         self.player = Player(self)
-        self.map_manager = MapManager(self.surface, self.player )
+        self.map_manager = MapManager(self.surface, self.player, self)
 
-        # Manipulations des Instances
-        self.player.add_weapons(
-            [ Weapon('sword', 1, self.map_manager, self.player),
-              FireWeapon('gun', 1, self.map_manager, self.player)]
-        )
-        # éléments graphiques
+        # Instances Manipulations
+        self.player.add_weapons([
+            Weapon('sword', 1, self.map_manager, self.player),
+            FireWeapon('gun', 1, self.map_manager, self.player)
+        ])
+
+        # Inventaire
+        self.i = Inventory(self.surface, self.player)
+
+        # Graphic elements
+        self.game_menu = Menu(self.surface, [
+                            {
+                                'name': 'Panel',
+                                'text': '',
+                                'rect': [(200, 50), (200, 500)],
+                                'object_id': '',
+                                'container': None
+                            },
+                            {
+                                'name': 'Button',
+                                'text': self.texts['buttons']['play_button'],
+                                'rect': [(200, 200), (200, 50)],
+                                'object_id': 'button',
+                                'container': None
+                            },
+                            {
+                                'name': 'Button',
+                                'text': self.texts['buttons']['settings_button'],
+                                'rect': [(200, 300), (200, 50)],
+                                'object_id': 'button',
+                                'container': None
+                            }
+                        ])
+
         self.dialog_box = DialogBox(self)
         self.inventory = Interface(self.surface, INVENTORY(), f_pg.pygame_image('./assets/images/interfaces/inventory.png', [(self.vw / 3) * 2, (self.vh / 10) * 8]), [])
         self.coin_box = Interface(self.surface, COIN_BOX(self.vw), f_pg.pygame_image('./assets/images/interfaces/coin_box.png', [200, 80]), [])
@@ -41,9 +79,13 @@ class Game:
             Interface(self.surface, [50, 300], f_pg.pygame_image('./assets/images/interfaces/type/type_z.png', [120, 80]), [])
         ]
         self.alerts = [
-            Alert(self, 'Hello World', co.WHITE, 0)
+            #Alert(self, 'Hello World', co.WHITE, 0)
         ]
-        #self.get_map_type()
+
+        # init declarations
+        self.res_btn = ''
+        self.res_btn_rect = ''
+        self.play_btn_rect = ''
 
     def start(self): self.isPlaying = True
 
@@ -51,12 +93,17 @@ class Game:
 
     def died(self):
         self.isDied = True
-        self.pause(False)
+        self.pause(False, False)
 
     def get_map_type(self):
         with open('./assets/json/maps.json', 'r') as file:
             data = json.load(file)
         return data[self.map_manager.current_map]
+
+    def get_text(self):
+        with open('./assets/json/elements_text.json', 'r') as file:
+            data = json.load(file)
+            self.texts = data[self.lang]
 
     def respawn(self):
         self.player.remove_money(30)
@@ -67,6 +114,8 @@ class Game:
 
     def resize(self, w, h):
         self.vw, self.vh = w, h
+        self.i.resize(self.surface)
+        self.i.draw_items(self.i.focus)
         self.surface = pygame.display.set_mode((self.vw, self.vh), RESIZABLE)
         self.dialog_box.X_POS = self.vw / 4
         self.dialog_box.Y_POS = self.vh - 130
@@ -95,21 +144,31 @@ class Game:
         running = True
         while running:
 
-            # dessin de la map, du joueur et des enemy
+            # Time Delta set for PygameGui
+            time_delta = clock.tick(60) / 1000.0
+
+            # Map, player and enemies drawing
             self.map_manager.draw()
 
             if inventory:
-                # Inventaire
+
+                # Inventory
                 self.inventory.blit()
                 # Interfaces
                 self.coin_box.blit()
-                # Ajout des stats du player
+                # Append of player stats
                 pygame.draw.rect(self.surface, (255, 255, 255), (20, 20, 100, 140), 4)
                 self.player.update_stats(self.surface)
 
+                if self.i.index is not None:
+                    self.i.info_zone()
+
+                self.i.update(time_delta)
+                self.i.draw()
+
             elif self.isDied:
                 self.died_bg.blit()
-                self.res_btn = f_pg.pygame_image('./assets/images/menu/resurect_button.png', [self.vw / 3.33, self.vw / 9.99])
+                self.res_btn = f_pg.pygame_image('./assets/images/menu/resurrect_button.png', [self.vw / 3.33, self.vw / 9.99])
                 self.res_btn_rect = self.res_btn.get_rect()
                 self.res_btn_rect.x = self.vw / 3
                 self.res_btn_rect.y = (self.vh / 4) * 3
@@ -121,21 +180,32 @@ class Game:
             pygame.display.flip()
 
             for event in pygame.event.get():
+                # Close Window
                 if event.type == pygame.QUIT:
                     running = False
+                # If player is died
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if self.isDied:
                         if self.res_btn_rect.collidepoint(event.pos):
                             self.respawn()
                             break
+                 # If window is resized
                 elif event.type == VIDEORESIZE:
                     self.resize(event.w, event.h)
+                # Close Inventoy or Market
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE or pygame.K_b:
                         self.run()
-                        break
 
-            clock.tick(60)
+                inventory = True
+                if inventory:
+                    self.i.ui_manager.process_events(event)
+                    if event.type == pg_gui.UI_BUTTON_START_PRESS:
+                        bouton_id = event.ui_element.object_ids[len(event.ui_element.object_ids) - 1]
+                        for element in self.i.buttons:
+                            if bouton_id == element.object_id.object_id:
+                                element.execute()
+
         pygame.quit()
         sys.exit()
 
@@ -144,6 +214,7 @@ class Game:
 
         running = True
         while running:
+            time_delta = clock.tick(60)
             if self.isPlaying:
 
                 self.player.save_location()
@@ -160,7 +231,7 @@ class Game:
                     self.surface.blit(f_pg.text(self.player.selected_weapon.munitions, None, 30, co.WHITE), MUNITION_NUMBER(self.vw, self.vh))
 
                 if self.get_map_type() == 'dungeon':
-                    self.surface.blit(f_pg.text(f'l{len(self.map_manager.get_map().enemys)} / {self.map_manager.current_mission.n_enemy}', None, 35, co.WHITE), ((self.vw / 2) - 20, self.vh - 50))
+                    self.surface.blit(f_pg.text(f'{len(self.map_manager.get_map().enemys)} / {self.map_manager.current_mission.n_enemy}', None, 35, co.WHITE), ((self.vw / 2) - 20, self.vh - 50))
 
                 """for type in self.types:
                     pass
@@ -168,22 +239,25 @@ class Game:
                 for alert in self.alerts:
                     alert.blit()
 
-                # Update du jeu
+                # Game update
                 self.update()
 
             else:
-                # éléments pygame
-                # background
+                # PyGame Elements
+
+                # Background
                 bg = f_pg.pygame_image('./assets/images/menu/background.png', [self.vw, self.vh])
                 self.surface.blit(bg, (0, 0))
-                # play button
-                self.play_btn = f_pg.pygame_image('./assets/images/menu/play_btn.png', [150, 50])
-                self.play_btn_rect = self.play_btn.get_rect()
-                self.play_btn_rect.x = 100 #math.ceil(self.surface.get_width() / 2)
-                self.play_btn_rect.y = 400 #math.ceil(self.surface.get_height() / 3.33)
-                self.surface.blit(self.play_btn, (100, 400))
 
-            # mise a jour de la fenêtre
+                # Pygame Gui
+                self.game_menu.update(time_delta)
+                self.game_menu.draw()
+
+                # Play button
+                self.play_btn_rect = self.game_menu.elems[1].rect
+                self.settings_btn_rect = self.game_menu.elems[1].rect
+
+            # Window update
             pygame.display.flip()
 
             for event in pygame.event.get():
@@ -206,7 +280,8 @@ class Game:
                         self.player.attack('fire')
                     elif event.key == pygame.K_v:
                         self.map_manager.check_missioner_collision(self.dialog_box)
-                        self.map_manager.check_traider_collision(self)
+                        self.map_manager.check_trader_collision(self)
+
                     elif event.key == pygame.K_b:
                         if self.isPlaying:
                             self.pause(True, False)
@@ -220,6 +295,5 @@ class Game:
                     elif event.key == pygame.K_2:
                         self.player.choice_current_weapon(1)
 
-            clock.tick(60)
         pygame.quit()
         sys.exit()

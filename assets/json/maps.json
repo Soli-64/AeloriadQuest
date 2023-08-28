@@ -1,6 +1,10 @@
 {
-  "dungeon1": "dungeon",
+  "dungeons": [
+    "dungeon2"
+  ],
+  "dungeon3": "dungeon",
   "dungeon2": "dungeon",
-  "world": "world"
+  "world": "world",
+  "city": "world"
 
 }

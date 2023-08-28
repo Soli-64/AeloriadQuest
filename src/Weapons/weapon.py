@@ -1,6 +1,6 @@
 import pygame
 import json
-from src.Utils.interface import Interface
+from src.Elements.interface import Interface
 import src.Utils.pygame_functions as f_pg
 
 class Weapon(pygame.sprite.Sprite):
@@ -26,6 +26,7 @@ class Weapon(pygame.sprite.Sprite):
             data = json.load(file)
             self.item_image = f_pg.pygame_image(data['item_image'], [100, 100])
             #self.game_image = pygame.image.load(data['game_image'])
+            self.type = data['type']
             self.rarity = data['rarity']
             self.reach = data['reach']
             self.damage = data['level_stats'][str(self.level)]['damage']
@@ -42,5 +43,5 @@ class Weapon(pygame.sprite.Sprite):
             if knock_stats:
                 enemy.apply_damage(self.damage)
 
-    def magic_attack(self): print('test')
-    def fire_attack(self): print('test')
+    def magic_attack(self): return
+    def fire_attack(self): return

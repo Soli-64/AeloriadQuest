@@ -16,7 +16,7 @@ class Entity(AnimateSprite):
         self.old_position = self.position.copy()
         self.speed = 3
 
-    def localizeX(self, point, dist: int):
+    def localize_x(self, point, dist: int):
         if self.rect.x - point.rect.x <= dist and self.rect.x - point.rect.x >= 0:
             return True
         elif self.rect.x + dist >= point.rect.x and self.rect.x <= point.rect.x:
@@ -24,7 +24,7 @@ class Entity(AnimateSprite):
         else:
             return False
 
-    def localizeY(self, point, dist: int):
+    def localize_y(self, point, dist: int):
         if self.rect.y - point.rect.y <= dist and self.rect.y - point.rect.y >= 0:
             return True
         elif self.rect.y + dist >= point.rect.y and self.rect.y <= point.rect.y:
@@ -33,7 +33,7 @@ class Entity(AnimateSprite):
             return False
 
     def localize(self, point, dist):
-        if self.localizeX(point, dist) and self.localizeY(point, dist):
+        if self.localize_x(point, dist) and self.localize_y(point, dist):
             return True
         else: return False
 

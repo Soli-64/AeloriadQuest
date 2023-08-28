@@ -1,0 +1,14 @@
+{
+  "FR": {
+    "buttons": {
+      "play_button": "JOUER",
+      "settings_button": "PARAMETRES"
+    }
+  },
+  "EN": {
+    "buttons": {
+      "play_button": "PLAY",
+      "settings_button": "SETTINGS"
+    }
+  }
+}

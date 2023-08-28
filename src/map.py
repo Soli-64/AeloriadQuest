@@ -6,7 +6,7 @@ from src.Items.item import Item
 from src.Items.chest import Chest
 from src.Missioner.mission import Mission
 from src.Weapons.projectil import Projectil
-from src.Traiders.traider import Traider
+from src.Traders.trader import Trader
 
 @dataclass
 class Teleporter:
@@ -26,23 +26,25 @@ class Map:
     missioners: list[Missioner]
     items: list[Item, Chest]
     projectils: list[Projectil]
-    traiders: list[Traider]
+    traders: list[Trader]
     #npcs: list[NPC]
     #weapons: list[Weapon]
 
 class MapManager:
 
-    def __init__(self, screen, player):
+    def __init__(self, screen, player, game):
+        self.game = game
         self.maps = dict()
         self.current_map = "world"
         self.screen = screen
         self.player = player
+        self.current_mission = None
         self.register_map("world", teleporters=[], enemys=[], missioners=[
-            Missioner('Robin', [300, 300], self)
+            Missioner('Robin', self)
         ], items=[
             Chest(100, 100, self)
-        ], projectils=[], traiders=[
-            Traider('Paul', [350, 300], self)
+        ], projectils=[], traders=[
+            Trader('Paul', [350, 300], self)
         ])
         self.teleport_player("player")
 
@@ -50,6 +52,8 @@ class MapManager:
     def get_teleporter(self, from_world, origin_point, target_world, teleport_point): return Teleporter(from_world, origin_point, target_world, teleport_point)
 
     def get_chest(self, x, y): return Chest(x, y, self)
+
+    def get_missioner(self): return Missioner('Robin', self)
 
 
     # FONCTIONS LIES AUX COMPORTEMENT D'ELEMENTS SUR LA MAP
@@ -66,13 +70,18 @@ class MapManager:
     def check_missioner_collision(self, dialog_box):
         for sprite in self.get_group().sprites():
             if sprite.feet.colliderect(self.player.rect) and type(sprite) is Missioner:
-                mission = dialog_box.execute(sprite)
-                if type(mission) is Mission:
-                    self.current_mission = mission
+                if type(self.current_mission) is Mission and self.current_mission.isFinished:
+                    sprite.choose_texts('reward')
+                    dialog_box.execute(sprite.end_mission, sprite)
+                else:
+                    sprite.choose_texts('mission')
+                    mission = dialog_box.execute(sprite.launch_mission, sprite)
+                    if type(mission) is Mission:
+                        self.current_mission = mission
 
-    def check_traider_collision(self, game):
+    def check_trader_collision(self, game):
         for sprite in self.get_group().sprites():
-            if sprite.feet.colliderect(self.player.rect) and type(sprite) is Traider:
+            if sprite.feet.colliderect(self.player.rect) and type(sprite) is Trader:
                 game.pause(False, True)
 
     def check_collision(self):
@@ -130,7 +139,7 @@ class MapManager:
         self.get_group().draw(self.screen)
         self.get_group().center(self.player.rect.center)
 
-    def register_map(self, name, teleporters=[], enemys=[], missioners=[], items=[], projectils=[], traiders=[]):
+    def register_map(self, name, teleporters=[], enemys=[], missioners=[], items=[], projectils=[], traders=[]):
         # --------------- charger la carte (tmx) -----------
         print(name)
         tmx_data = pytmx.util_pygame.load_pygame(f"./map/{name}.tmx")
@@ -146,7 +155,7 @@ class MapManager:
                 walls.append(pygame.Rect(obj.x, obj.y, obj.width, obj.height))
 
         # --------------- dessiner le groupe de cartes ------
-        group = pyscroll.PyscrollGroup(map_layer=map_layer, default_layer=6)
+        group = pyscroll.PyscrollGroup(map_layer=map_layer, default_layer=9)
 
         group.add(self.player)
 
@@ -162,12 +171,11 @@ class MapManager:
         for projectil in projectils:
             group.add(projectil)
 
-        for traider in traiders:
-            group.add(traider)
+        for trader in traders:
+            group.add(trader)
 
         # créer un objet Map
-        self.maps[name] = Map(name, walls, group, tmx_data, teleporters, enemys, missioners, items, projectils,
-                              traiders)
+        self.maps[name] = Map(name, walls, group, tmx_data, teleporters, enemys, missioners, items, projectils, traders)
 
     def update(self):
         self.get_group().update()

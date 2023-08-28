@@ -5,10 +5,7 @@
   "reach": 10,
   "rarity": "atypique",
   "munition_type": "petites",
-  "price": {
-    "buy": 50,
-    "sell": 35
-  },
+  "type": "weapon",
   "level_stats": {
     "1": {
       "damage": 10

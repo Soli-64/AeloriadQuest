@@ -5,10 +5,7 @@
   "reach": 10,
   "munition_type": "none",
   "rarity": "common",
-  "price": {
-    "buy": 35,
-    "sell": 20
-  },
+  "type": "weapon",
   "level_stats": {
     "1": {
       "damage": 10

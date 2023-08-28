@@ -7,6 +7,7 @@ class AnimateSprite(pygame.sprite.Sprite):
         super().__init__()
         self.path = path
         self.sprite_sheet = pygame.image.load(path)
+        self.sprite_damaged_sheet = 'default damaged sprite sheet'
         self.animation_index = 0
         self.clock = 0
         self.images = {
