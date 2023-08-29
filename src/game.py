@@ -160,7 +160,7 @@ class Game:
                 pygame.draw.rect(self.surface, (255, 255, 255), (20, 20, 100, 140), 4)
                 self.player.update_stats(self.surface)
 
-                if self.i.index is not None:
+                if self.i.visible_info_zone:
                     self.i.info_zone()
 
                 self.i.update(time_delta)
@@ -202,9 +202,13 @@ class Game:
                     self.i.ui_manager.process_events(event)
                     if event.type == pg_gui.UI_BUTTON_START_PRESS:
                         bouton_id = event.ui_element.object_ids[len(event.ui_element.object_ids) - 1]
-                        for element in self.i.buttons:
+                        for key in self.i.event_buttons.keys():
+                            if bouton_id == key:
+                                self.i.event_buttons[key].execute()
+                        """for element in self.i.buttons:
                             if bouton_id == element.object_id.object_id:
-                                element.execute()
+                                element.execute()"""
+
 
         pygame.quit()
         sys.exit()

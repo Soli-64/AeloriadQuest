@@ -84,15 +84,15 @@ class Button:
                                            container=self.container
                                            )
 
-
 class IndexButton(Button):
 
-    def __init__(self, _rect, _text, _ui_manager, _object_id, _container, _inventory):
+    def __init__(self, _rect, _text, _ui_manager, _object_id, _container, _inventory, _id):
         super().__init__(_rect, _text, _ui_manager, _object_id, _container)
         self.inventory = _inventory
+        self.index = _id
 
     def execute(self):
-        self.inventory.set_index(self)
+        self.inventory.set_index()
 
 
 class EventButton(Button):
@@ -100,14 +100,16 @@ class EventButton(Button):
     def __init__(self, _rect, _text, _ui_manager, _object_id, _container, _func):
         super().__init__(_rect, _text, _ui_manager, _object_id, _container)
         self.func = _func
-    def execute(self): self.func()
 
+    def execute(self):
+        self.func()
 
 
 class Ids:
 
     def __init__(self, _class_id, _object_id):
         self.all = ObjectID(class_id=_class_id, object_id=_object_id)
+
 
 class ScrollZone:
 
