@@ -27,19 +27,29 @@ class Cadre:
 
 class Alert:
 
-    def __init__(self, game, text, color, time):
-        self.game = game
-        self.text = text
-        self.color = color
-        self.time = time
-        self.font = pygame.font.Font('./assets/fonts/dialog_font.ttf', 18)
-        self.isVisible = True
-        pygame.time.set_timer(pygame.USEREVENT, 2000)
+    def __init__(self, _game, _text, _color, _seconds, _pos):
 
-    def end(self):
-        self.game.alerts.remove(self)
+        self.game = _game
 
-    def blit(self):
-        if self.isVisible:
-            text = self.font.render(self.text, False, self.color)
-            self.game.surface. blit(text, (100, self.game.vh - 300))
+        self.text = _text
+        self.color = _color
+        self.time = int(_seconds * 1000)
+        self.pos = _pos
+        self.font = pygame.font.Font(None, 18) # pygame.font.Font('./assets/fonts/dialog_font.ttf', 21)
+
+        surface = self.font.render(self.text, False, self.color)
+        sprite = pygame.sprite.Sprite()
+        sprite.image = surface
+        sprite.rect = surface.get_rect()
+        self.sprite = sprite
+        self.sprite.feet = pygame.Rect(0, 0, self.sprite.rect.width * 0.5, 12)
+        self.sprite.rect.x, self.sprite.rect.y = _pos[0], _pos[1]
+
+        self.game.map_manager.get_map().effects.append( self.sprite )
+        self.game.map_manager.get_group().add( self.sprite )
+
+        self.game.alerts.append(self)
+
+        pygame.time.set_timer(pygame.USEREVENT, self.time)
+
+    def end(self): self.game.map_manager.get_group().remove(self.sprite)

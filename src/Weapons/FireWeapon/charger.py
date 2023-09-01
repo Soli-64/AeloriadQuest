@@ -1,4 +1,4 @@
-import src.Utils.pygame_functions as f_pg
+import src.Utils.pg_utils as f_pg
 
 
 class Charger:

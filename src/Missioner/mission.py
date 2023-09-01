@@ -10,7 +10,7 @@ class Mission:
         self.map_manager = map_manager
         self.map_name = 'default map name'
         self.set_map_name()
-        self.n_enemy = self.level * 1
+        self.n_enemy = self.level * 10
         self.missioner = missioner
         self.set_mission()
         self.isFinished = False
@@ -27,7 +27,7 @@ class Mission:
             enemys.append(
                 Enemy(self.map_manager.player, self.map_manager)
             )
-        self.map_manager.register_map(name=self.map_name, teleporters=teleporters, enemys=enemys, missioners=[], items=[], projectils=[], traders=[])
+        self.map_manager.register_map(_name=self.map_name, _teleporters=teleporters, _enemys=enemys, _missioners=[], _items=[], _projectils=[], _traders=[], _effects=[])
 
     def activ_mission(self):
         self.map_manager.current_map = self.map_name

@@ -1,10 +1,10 @@
 import json
-
 import pygame
+from src.animation import EffectAnimator
 from src.entity import Entity
 from src.Weapons.weapon import Weapon
 from src.Weapons.magic_weapon import MagicWeapon
-import src.Utils.pygame_functions as f_pg
+import src.Utils.pg_utils as f_pg
 
 
 class Player(Entity):
@@ -13,9 +13,12 @@ class Player(Entity):
     y = 100
 
     def __init__(self, game):
-        super().__init__("player2", './assets/images/sprite/player2.png', self.x, self.y)
+        super().__init__("player", './assets/images/sprite/player4.png', self.x, self.y)
 
+        # Instances
         self.game = game
+        self.slash_animator = EffectAnimator('./assets/images/sprite/slash', 'slash_effect_anim_f', self.position)
+        # Attributes
         self.reach = 15
         self.speed = 5
         self.level = 1
@@ -84,13 +87,14 @@ class Player(Entity):
         # money
         surface.blit(f_pg.text(self.money, None, 50), (self.game.vw - 165, 35))
 
-    def attack(self, type):
+    def attack(self, type, map_manager):
         if self.selected_weapon:
             if type == 'magic':
                 self.selected_weapon.magic_attack()
             elif type == 'fire':
                 self.selected_weapon.fire_attack()
             else:
+                self.slash_animator.launch_animation([self.rect.x, self.rect.y], map_manager)
                 self.selected_weapon.attack()
         else:
             print('selectionne une arme pour attaquer !')

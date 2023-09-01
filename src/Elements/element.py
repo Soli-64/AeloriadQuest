@@ -1,6 +1,6 @@
 import pygame, pygame_gui as pg_gui
 from pygame_gui.core import ObjectID
-import src.Utils.pygame_functions as f_pg
+import src.Utils.pg_utils as f_pg
 
 
 class ParentElement:

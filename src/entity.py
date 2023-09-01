@@ -2,18 +2,32 @@ import pygame
 #from src.Enemy.enemy import Enemy
 from src.animation import AnimateSprite
 
+
 class Entity(AnimateSprite):
     def __init__(self, name: str, path, x: int, y: int):
         super().__init__(path)
+
         self.image_path = path
+        self.images = {
+            'down': self.get_images(0),
+            'left': self.get_images(32),
+            'right': self.get_images(64),
+            'up': self.get_images(96),
+            'slash': self.get_splited_images('./assets/images/sprite/slash', 'slash_effect_anim_f', 2)
+        }
+
         self.name = name
+        self.direction = 'down'
+        self.set_spritesheets()
         self.sprite_sheet = pygame.image.load(path)
         self.image = self.get_image(0, 0)
         self.image.set_colorkey(0, 0)
         self.rect = self.image.get_rect()
-        self.position = [x, y]
         self.feet = pygame.Rect(0, 0, self.rect.width * 0.5, 12)
+
+        self.position = [x, y]
         self.old_position = self.position.copy()
+
         self.speed = 3
 
     def localize_x(self, point, dist: int):
@@ -41,18 +55,22 @@ class Entity(AnimateSprite):
 
     def move_right(self):
         self.animations('right')
+        self.direction = 'right'
         self.position[0] += self.speed
 
     def move_left(self):
         self.animations('left')
+        self.direction = 'left'
         self.position[0] -= self.speed
 
     def move_up(self):
         self.animations('up')
+        self.direction = 'up'
         self.position[1] -= self.speed
 
     def move_down(self):
         self.animations('down')
+        self.direction = 'down'
         self.position[1] += self.speed
 
     def update(self):

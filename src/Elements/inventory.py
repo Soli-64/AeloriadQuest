@@ -176,9 +176,6 @@ class Inventory(ParentElement):
                                   container=self.panel
                                   ).UI
 
-    def set_index(self, _id):
-        self.index = _id
-
     def info_zone(self):
 
         target_element = self.elements[f'{self.pressed_button_id}']

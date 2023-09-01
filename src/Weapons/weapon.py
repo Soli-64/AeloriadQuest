@@ -1,21 +1,31 @@
 import pygame
 import json
 from src.Elements.interface import Interface
-import src.Utils.pygame_functions as f_pg
+import src.Utils.pg_utils as f_pg
+from src.animation import AnimateSprite
 
-class Weapon(pygame.sprite.Sprite):
+class Weapon(AnimateSprite, pygame.sprite.Sprite):
 
     x = 100
     y = 100
 
-    def __init__(self, name: str, level: int, map_manager, player):
-        super().__init__()
+    def __init__(self, name: str, level: int, map_manager, player, animation_path):
+        super().__init__(animation_path)
         self.name = name
         self.level = level
         self.map_manager = map_manager
         self.player = player
-        self.position = [self.x, self.y]
+        self.image = pygame.Surface([16, 16])
+        self.rect = self.image.get_rect()
+        self.rect.x = self.player.rect.x
+        self.rect.y = self.player.rect.y
+        self.position = [self.rect.x, self.rect.y]
         self.get_data()
+
+        self.images = {
+            'slash': self.get_splited_images('./assets/images/sprite/slash', 'slash_effect_anim_f', 2)
+        }
+
         self.icon = Interface(self.map_manager.screen, [205, 368], self.item_image, [])
 
     def blit_inventory_image(self):
@@ -34,14 +44,15 @@ class Weapon(pygame.sprite.Sprite):
             self.munitions = "infinite"
 
     def move(self):
-        self.position[0] = self.player.position[0]
-        self.position[1] = self.player.position[1]
+        self.rect.topleft = self.position
 
     def attack(self):
         for enemy in self.map_manager.get_map().enemys:
             knock_stats = self.player.localize(enemy, self.player.reach + self.reach)
             if knock_stats:
                 enemy.apply_damage(self.damage)
+        for x in range(0, 2):
+            self.animations('slash')
 
     def magic_attack(self): return
     def fire_attack(self): return

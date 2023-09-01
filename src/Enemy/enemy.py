@@ -1,6 +1,17 @@
+import random
+
 from src.entity import Entity
 from random import randint
+from src.Elements.interface import Alert
 import pygame
+
+
+class DamagedNumber(Alert):
+
+    def __init__(self, _game, _text, _color, _time, _pos):
+        super().__init__(_game, _text, _color, _time / 1000, [_pos[0] + random.randint(-10, 10), _pos[1] + 30])
+    def move(self):
+        self.sprite.rect.y -= 1
 
 class Enemy(Entity):
 
@@ -11,7 +22,7 @@ class Enemy(Entity):
         super().__init__("enemy", './assets/images/sprite/enemys/enemy.png', self.x, self.y)
         self.player = player
         self.map_manager = map_manager
-        self.set_enemy_animation()
+        self.set_enemy_animation('./assets/images/sprite/enemys/damaged/enemy_d.png')
         self.speed = randint(1, 3)
         self.max_health = 50
         self.health = 50
@@ -21,6 +32,7 @@ class Enemy(Entity):
 
     def apply_damage(self, amount):
         self.animations('damaged')
+        DamagedNumber(self.map_manager.game, f'{amount}', (255, 255, 255), 500, [self.rect.x, self.rect.y])
         self.health -= amount
         if self.health <= 0:
             self.remove()

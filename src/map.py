@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from src.animation import EffectAnimator
 from src.Enemy.enemy import Enemy
 from src.Missioner.missioner import Missioner
 import pygame, pyscroll, pytmx
@@ -7,6 +8,12 @@ from src.Items.chest import Chest
 from src.Missioner.mission import Mission
 from src.Weapons.projectil import Projectil
 from src.Traders.trader import Trader
+from src.Elements.interface import Alert
+from src.Weapons.weapon import Weapon
+from src.Weapons.magic_weapon import MagicWeapon
+from src.Weapons.FireWeapon.fire_weapon import FireWeapon
+from src.player import Player
+import src.Utils.pg_utils as f_pg
 
 @dataclass
 class Teleporter:
@@ -27,8 +34,9 @@ class Map:
     items: list[Item, Chest]
     projectils: list[Projectil]
     traders: list[Trader]
+    effects: list[Alert, EffectAnimator]
+    weapons: list[Weapon, MagicWeapon, FireWeapon]
     #npcs: list[NPC]
-    #weapons: list[Weapon]
 
 class MapManager:
 
@@ -39,12 +47,16 @@ class MapManager:
         self.screen = screen
         self.player = player
         self.current_mission = None
-        self.register_map("world", teleporters=[], enemys=[], missioners=[
+        self.register_map("world", _teleporters=[], _enemys=[], _missioners=[
             Missioner('Robin', self)
-        ], items=[
+        ], _items=[
             Chest(100, 100, self)
-        ], projectils=[], traders=[
+        ], _projectils=[], _traders=[
             Trader('Paul', [350, 300], self)
+        ], _effects=[
+
+        ], _weapons=[
+
         ])
         self.teleport_player("player")
 
@@ -98,18 +110,19 @@ class MapManager:
         # collisions
         for sprite in self.get_group().sprites():
 
-            if sprite.feet.collidelist(self.get_walls()) > -1:
-                if type(sprite) is Projectil:
-                    self.get_map().projectils.remove(sprite)
-                    self.get_map().group.remove(sprite)
-                else:
-                    sprite.move_back()
-            if sprite.feet.collidelist(self.get_map().items) > -1:
-                if type(sprite) is Projectil:
-                    self.get_map().projectils.remove(sprite)
-                    self.get_map().group.remove(sprite)
-                else:
-                    sprite.move_back()
+            if type(sprite) is not f_pg.ImageSprite:
+                if sprite.feet.collidelist(self.get_walls()) > -1:
+                    if type(sprite) is Projectil:
+                        self.get_map().projectils.remove(sprite)
+                        self.get_map().group.remove(sprite)
+                    else:
+                        sprite.move_back()
+                if sprite.feet.collidelist(self.get_map().items) > -1:
+                    if type(sprite) is Projectil:
+                        self.get_map().projectils.remove(sprite)
+                        self.get_map().group.remove(sprite)
+                    else:
+                        sprite.move_back()
 
         for sprite in self.get_map().enemys:
 
@@ -139,10 +152,9 @@ class MapManager:
         self.get_group().draw(self.screen)
         self.get_group().center(self.player.rect.center)
 
-    def register_map(self, name, teleporters=[], enemys=[], missioners=[], items=[], projectils=[], traders=[]):
+    def register_map(self, _name, _teleporters=[], _enemys=[], _missioners=[], _items=[], _projectils=[], _traders=[], _effects=[], _weapons=[]):
         # --------------- charger la carte (tmx) -----------
-        print(name)
-        tmx_data = pytmx.util_pygame.load_pygame(f"./map/{name}.tmx")
+        tmx_data = pytmx.util_pygame.load_pygame(f"./map/{_name}.tmx")
         map_data = pyscroll.data.TiledMapData(tmx_data)
         map_layer = pyscroll.orthographic.BufferedRenderer(map_data, self.screen.get_size())
         map_layer.zoom = 2
@@ -159,23 +171,26 @@ class MapManager:
 
         group.add(self.player)
 
-        for missioner in missioners:
+        for missioner in _missioners:
             group.add(missioner)
 
-        for enemy in enemys:
+        for enemy in _enemys:
             group.add(enemy)
 
-        for item in items:
+        for item in _items:
             group.add(item)
 
-        for projectil in projectils:
+        for projectil in _projectils:
             group.add(projectil)
 
-        for trader in traders:
+        for trader in _traders:
             group.add(trader)
 
+        for effect in _effects:
+            group.add(effect)
+
         # créer un objet Map
-        self.maps[name] = Map(name, walls, group, tmx_data, teleporters, enemys, missioners, items, projectils, traders)
+        self.maps[_name] = Map(_name, walls, group, tmx_data, _teleporters, _enemys, _missioners, _items, _projectils, _traders, _effects, _weapons)
 
     def update(self):
         self.get_group().update()

@@ -1,4 +1,4 @@
-import pygame, random, src.Utils.pygame_functions as f_pg, time
+import pygame, random, src.Utils.pg_utils as f_pg, time
 from src.Items.item import Item
 
 

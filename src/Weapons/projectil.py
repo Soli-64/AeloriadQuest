@@ -1,5 +1,5 @@
 import pygame
-import src.Utils.pygame_functions as f_pg
+import src.Utils.pg_utils as f_pg
 from src.entity import Entity
 
 class Projectil(pygame.sprite.Sprite):

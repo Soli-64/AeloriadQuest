@@ -1,17 +1,20 @@
+import threading
+
 import pygame, pygame_gui as pg_gui
+from threading import Thread
 import src.Utils.colors as co, json, sys
 from pygame.locals import *
 from src.map import MapManager
 from src.player import Player
 from src.Weapons.weapon import Weapon
 from src.Weapons.FireWeapon.fire_weapon import FireWeapon
-from src.Elements.interface import Interface #, Alert
+from src.Elements.interface import Interface, Alert
 from src.Dialogs.dialog import DialogBox
-import src.Utils.pygame_functions as f_pg
+import src.Utils.pg_utils as f_pg
 from src.Utils.settings import *
 from src.Elements.menu import Menu
 from src.Elements.inventory import Inventory
-from src.Elements.element import Button
+from src.Enemy.enemy import DamagedNumber
 
 class Game:
 
@@ -28,7 +31,7 @@ class Game:
         self.vw = 1200
         self.vh = 700
         self.surface = pygame.display.set_mode((self.vw, self.vh), RESIZABLE)
-        pygame.display.set_caption("RpgMission")
+        pygame.display.set_caption("AeloriadQuest")
 
         # Instances
         self.player = Player(self)
@@ -36,11 +39,11 @@ class Game:
 
         # Instances Manipulations
         self.player.add_weapons([
-            Weapon('sword', 1, self.map_manager, self.player),
-            FireWeapon('gun', 1, self.map_manager, self.player)
+            Weapon('sword', 1, self.map_manager, self.player, './assets/images/sprite/slash/slash_effect_anim_f0.png'),
+            FireWeapon('gun', 1, self.map_manager, self.player, './assets/images/sprite/slash/slash_effect_anim_f0.png')
         ])
 
-        # Inventaire
+        # Inventory
         self.i = Inventory(self.surface, self.player)
 
         # Graphic elements
@@ -78,14 +81,12 @@ class Game:
             Interface(self.surface, [50, 200], f_pg.pygame_image('./assets/images/interfaces/type/type_e.png', [120, 70]), []),
             Interface(self.surface, [50, 300], f_pg.pygame_image('./assets/images/interfaces/type/type_z.png', [120, 80]), [])
         ]
-        self.alerts = [
-            #Alert(self, 'Hello World', co.WHITE, 0)
-        ]
+        self.alerts = []
 
-        # init declarations
-        self.res_btn = ''
-        self.res_btn_rect = ''
-        self.play_btn_rect = ''
+        # Init declarations
+        self.res_btn = None
+        self.res_btn_rect = None
+        self.play_btn_rect = None
 
     def start(self): self.isPlaying = True
 
@@ -94,6 +95,7 @@ class Game:
     def died(self):
         self.isDied = True
         self.pause(False, False)
+
 
     def get_map_type(self):
         with open('./assets/json/maps.json', 'r') as file:
@@ -241,7 +243,8 @@ class Game:
                     pass
                     type.blit()"""
                 for alert in self.alerts:
-                    alert.blit()
+                    if type(alert) is DamagedNumber:
+                        alert.move()
 
                 # Game update
                 self.update()
@@ -264,6 +267,7 @@ class Game:
             # Window update
             pygame.display.flip()
 
+            # Events management
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
@@ -277,11 +281,11 @@ class Game:
                         self.start()
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
-                        self.player.attack('')
+                        self.player.attack('', self.map_manager)
                     elif event.key == pygame.K_z:
-                        self.player.attack('magic')
+                        self.player.attack('magic', self.map_manager)
                     elif event.key == pygame.K_e:
-                        self.player.attack('fire')
+                        self.player.attack('fire', self.map_manager)
                     elif event.key == pygame.K_v:
                         self.map_manager.check_missioner_collision(self.dialog_box)
                         self.map_manager.check_trader_collision(self)

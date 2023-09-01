@@ -4,8 +4,8 @@ from src.Weapons.projectil import Projectil
 
 class FireWeapon(Weapon):
 
-    def __init__(self, name, level, map_manager, player):
-        super().__init__(name, level, map_manager, player)
+    def __init__(self, name, level, map_manager, player, animation_path):
+        super().__init__(name, level, map_manager, player, animation_path)
         self.name = name
         self.level = level
         self.map_manager = map_manager
