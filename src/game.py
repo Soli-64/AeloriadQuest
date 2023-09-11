@@ -42,6 +42,7 @@ class Game:
             Weapon('sword', 1, self.map_manager, self.player, './assets/images/sprite/slash/slash_effect_anim_f0.png'),
             FireWeapon('gun', 1, self.map_manager, self.player, './assets/images/sprite/slash/slash_effect_anim_f0.png')
         ])
+        self.player.set_manager(self.map_manager)
 
         # Inventory
         self.i = Inventory(self.surface, self.player)
@@ -129,6 +130,8 @@ class Game:
 
     def update(self): self.map_manager.update()
 
+    def r_map_manager(self): return self.map_manager
+
     def handle_input(self):
         pressed = pygame.key.get_pressed()
 
@@ -211,7 +214,6 @@ class Game:
                             if bouton_id == element.object_id.object_id:
                                 element.execute()"""
 
-
         pygame.quit()
         sys.exit()
 
@@ -237,7 +239,14 @@ class Game:
                     self.surface.blit(f_pg.text(self.player.selected_weapon.munitions, None, 30, co.WHITE), MUNITION_NUMBER(self.vw, self.vh))
 
                 if self.get_map_type() == 'dungeon':
-                    self.surface.blit(f_pg.text(f'{len(self.map_manager.get_map().enemys)} / {self.map_manager.current_mission.n_enemy}', None, 35, co.WHITE), ((self.vw / 2) - 20, self.vh - 50))
+                    self.player.set_weapon_image()
+                    self.surface.blit(
+                                    f_pg.text(f'{len(self.map_manager.get_map().enemys)} / {self.map_manager.current_mission.n_enemy}',
+                                                None,
+                                                35,
+                                                co.WHITE),
+                                    ((self.vw / 2) - 20, self.vh - 50)
+                                    )
 
                 """for type in self.types:
                     pass
@@ -269,23 +278,29 @@ class Game:
 
             # Events management
             for event in pygame.event.get():
+
+                self.player.weapon_animation.handle_event(event)
+
                 if event.type == pygame.QUIT:
                     running = False
+
                 elif event.type == pygame.USEREVENT:
                     for alert in self.alerts:
                         alert.end()
+
                 elif event.type == VIDEORESIZE:
                     self.resize(event.w, event.h)
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if self.play_btn_rect.collidepoint(event.pos):
                         self.start()
+
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
-                        self.player.attack('', self.map_manager)
+                        self.player.attack('')
                     elif event.key == pygame.K_z:
-                        self.player.attack('magic', self.map_manager)
+                        self.player.attack('magic')
                     elif event.key == pygame.K_e:
-                        self.player.attack('fire', self.map_manager)
+                        self.player.attack('fire')
                     elif event.key == pygame.K_v:
                         self.map_manager.check_missioner_collision(self.dialog_box)
                         self.map_manager.check_trader_collision(self)

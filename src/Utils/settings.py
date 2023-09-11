@@ -1,7 +1,11 @@
+import pygame as pg
 # SETTINGS
 
 LANG="EN"
 
+# CUSTOM EVENTS
+
+SLASH_ANIMATION_TIMER= pg.USEREVENT + 1
 
 # SCREEN POINTS:
 

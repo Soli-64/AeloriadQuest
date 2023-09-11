@@ -1,10 +1,11 @@
 import json
 import pygame
-from src.animation import EffectAnimator
+from src.animation import AnimateEffectSprite
 from src.entity import Entity
 from src.Weapons.weapon import Weapon
 from src.Weapons.magic_weapon import MagicWeapon
 import src.Utils.pg_utils as f_pg
+from threading import Thread
 
 
 class Player(Entity):
@@ -17,7 +18,8 @@ class Player(Entity):
 
         # Instances
         self.game = game
-        self.slash_animator = EffectAnimator('./assets/images/sprite/slash', 'slash_effect_anim_f', self.position)
+        self.weapon_animation = AnimateEffectSprite('./assets/images/sprite/slash', 'slash_effect_anim_f', 3, self.position)
+        self.map_manager = None
         # Attributes
         self.reach = 15
         self.speed = 5
@@ -43,6 +45,14 @@ class Player(Entity):
             "explosives": 2,
             "none": "infinite"
         }
+
+    def set_manager(self, map_manager):
+        self.map_manager = map_manager
+        self.set_weapon_image()
+
+    def set_weapon_image(self):
+        self.map_manager.get_map().effects.append(self.weapon_animation)
+        self.map_manager.get_group().add(self.weapon_animation)
 
     def get_json(self):
         with open('./assets/json/player/level.json', 'r+') as file:
@@ -87,14 +97,14 @@ class Player(Entity):
         # money
         surface.blit(f_pg.text(self.money, None, 50), (self.game.vw - 165, 35))
 
-    def attack(self, type, map_manager):
+    def attack(self, type):
         if self.selected_weapon:
             if type == 'magic':
                 self.selected_weapon.magic_attack()
             elif type == 'fire':
                 self.selected_weapon.fire_attack()
             else:
-                self.slash_animator.launch_animation([self.rect.x, self.rect.y], map_manager)
+                self.weapon_animation.play_animation(self.map_manager, self.position)
                 self.selected_weapon.attack()
         else:
             print('selectionne une arme pour attaquer !')

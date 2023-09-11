@@ -1,5 +1,6 @@
 import pygame
 import src.Utils.pg_utils as f_pg
+from src.Utils.settings import *
 from threading import Thread
 
 class AnimateSprite(pygame.sprite.Sprite):
@@ -71,7 +72,96 @@ class AnimateSprite(pygame.sprite.Sprite):
         return image
 
 
+class AnimateEffectSprite(pygame.sprite.Sprite):
 
+    def __init__(self, file_path, animation_name, images_number, position):
+        super().__init__()
+        self.file_path = file_path
+        self.animation_name = animation_name
+        self.images_number = images_number
+        self.map_manager = None
+        self.animation_index = 0
+        self.position = [position[0] + 30, position[1] + 15]
+        self.clock = 0
+        self.speed = 3
+
+        self.set_none_image()
+
+        self.rect = self.image.get_rect()
+        self.images = self.get_splited_images()
+
+    def set_none_image(self): self.image = f_pg.pygame_image('./assets/images/empty.png', [16, 16])
+
+    def play_animation(self, map_manager, position):
+
+        self.map_manager = map_manager
+        self.position = position
+        self.index = 0
+        self.images_number = len(self.images)
+
+        if self.map_manager.player.direction == 'up':
+            self.rotate(90)
+            self.rect.x = self.map_manager.player.rect.x + 7
+            self.rect.y = self.map_manager.player.rect.y - 20
+        elif self.map_manager.player.direction == 'right':
+            self.rect.x = self.map_manager.player.rect.x + 25
+            self.rect.y = self.map_manager.player.rect.y + 15
+        elif self.map_manager.player.direction == 'left':
+            self.rotate(180)
+            self.rect.x = self.map_manager.player.rect.x - 13
+            self.rect.y = self.map_manager.player.rect.y + 15
+        elif self.map_manager.player.direction == 'down':
+            self.rotate(270)
+            self.rect.x = self.map_manager.player.rect.x + 5
+            self.rect.y = self.map_manager.player.rect.y + 33
+        else:
+            print('erreur direction player')
+
+        self.animation_timer = pygame.time.set_timer(SLASH_ANIMATION_TIMER, 50)
+
+    def stop_animation(self):
+        pygame.time.set_timer(SLASH_ANIMATION_TIMER, 0)
+        self.set_none_image()
+
+    def updated(self):
+        self.rect.topleft = self.position
+        self.image = self.images[self.animation_index]
+        if self.map_manager.player.direction == 'up':
+            self.rotate(90)
+            self.rect.x = self.map_manager.player.rect.x + 7
+            self.rect.y = self.map_manager.player.rect.y - 20
+        elif self.map_manager.player.direction == 'right':
+            self.rotate(0)
+            self.rect.x = self.map_manager.player.rect.x + 25
+            self.rect.y = self.map_manager.player.rect.y + 15
+        elif self.map_manager.player.direction == 'left':
+            self.rotate(180)
+            self.rect.x = self.map_manager.player.rect.x - 13
+            self.rect.y = self.map_manager.player.rect.y + 15
+        elif self.map_manager.player.direction == 'down':
+            self.rotate(270)
+            self.rect.x = self.map_manager.player.rect.x + 5
+            self.rect.y = self.map_manager.player.rect.y + 33
+        self.animation_index += 1
+        if self.animation_index >= self.images_number:
+            self.animation_index = 0
+            self.stop_animation()
+
+    def handle_event(self, event):
+        if event.type == SLASH_ANIMATION_TIMER:
+            self.updated()
+
+    def rotate(self, degree):
+        self.image = pg.transform.rotozoom(self.image, degree, 1)
+
+    def get_splited_images(self):
+        images = []
+        for i in range(0, self.images_number):
+            image = f_pg.pygame_image(f'{self.file_path}/{self.animation_name}{i}.png', [16, 16])
+            images.append(image)
+        return images
+
+"""
 class EffectAnimator:
 
     def __init__(self, _file_path, _image_name, position):
@@ -119,7 +209,8 @@ class EffectAnimator:
 
         self.index += 1
         if self.index >= max_index:
-            f_pg.time_event(self.remove_sprite, 110)
+            animation = Thread(target=lambda:f_pg.time_event(self.remove_sprite, 90))
+            animation.start()
             self.index = 0
             self.isAnimating = False
             for sprite in self.map_manager.get_group():
@@ -133,5 +224,5 @@ class EffectAnimator:
             self.map_manager = map_manager
             self.position = [position[0] + 30, position[1] + 15]
             self.index = 0
-            animation = Thread(target=lambda:f_pg.set_interval(lambda :self.next_image(3), 110, 3))
-            animation.start()
+            animation = Thread(target=lambda:f_pg.set_interval(lambda :self.next_image(3), 90, 3))
+            animation.start()"""

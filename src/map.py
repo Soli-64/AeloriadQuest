@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from src.animation import EffectAnimator
+from src.animation import AnimateEffectSprite
 from src.Enemy.enemy import Enemy
 from src.Missioner.missioner import Missioner
 import pygame, pyscroll, pytmx
@@ -34,7 +34,7 @@ class Map:
     items: list[Item, Chest]
     projectils: list[Projectil]
     traders: list[Trader]
-    effects: list[Alert, EffectAnimator]
+    effects: list[Alert, AnimateEffectSprite]
     weapons: list[Weapon, MagicWeapon, FireWeapon]
     #npcs: list[NPC]
 
@@ -76,12 +76,12 @@ class MapManager:
         self.player.position[1] = point.y
         self.player.save_location()
 
-
     # FONCTIONS LIES AUX COLLISIONS
 
     def check_missioner_collision(self, dialog_box):
         for sprite in self.get_group().sprites():
-            if sprite.feet.colliderect(self.player.rect) and type(sprite) is Missioner:
+
+            if type(sprite) is Missioner and sprite.feet.colliderect(self.player.rect):
                 if type(self.current_mission) is Mission and self.current_mission.isFinished:
                     sprite.choose_texts('reward')
                     dialog_box.execute(sprite.end_mission, sprite)
@@ -93,7 +93,7 @@ class MapManager:
 
     def check_trader_collision(self, game):
         for sprite in self.get_group().sprites():
-            if sprite.feet.colliderect(self.player.rect) and type(sprite) is Trader:
+            if type(sprite) is Trader and sprite.feet.colliderect(self.player.rect):
                 game.pause(False, True)
 
     def check_collision(self):
@@ -107,10 +107,9 @@ class MapManager:
                     self.current_map = portal.target_world
                     self.teleport_player(copy_portal.teleport_point)
 
-        # collisions
         for sprite in self.get_group().sprites():
 
-            if type(sprite) is not f_pg.ImageSprite:
+            if not (isinstance(sprite, f_pg.ImageSprite) or isinstance(sprite, AnimateEffectSprite)):
                 if sprite.feet.collidelist(self.get_walls()) > -1:
                     if type(sprite) is Projectil:
                         self.get_map().projectils.remove(sprite)
@@ -136,7 +135,6 @@ class MapManager:
 
     def check_projectile_collision(self, sprite, group):
         return pygame.sprite.spritecollide(sprite, group, False, pygame.sprite.collide_mask)
-
 
     # FONCTION MOTEUR DU JEU
 
