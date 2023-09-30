@@ -36,7 +36,7 @@ class Mission:
     def check_finished_mission(self):
         if len(self.map_manager.get_map().enemys) <= 0:
             self.map_manager.get_map().teleporters.append(
-                self.map_manager.get_teleporter(self.map_name, 'exit', 'world', 'end_mission')
+                self.map_manager.get_teleporter(self.map_name, 'exit', 'city', 'player')
             )
             point = self.map_manager.get_object('chest')
             chest = self.map_manager.get_chest(point.x, point.y)

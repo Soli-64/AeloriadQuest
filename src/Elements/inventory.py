@@ -15,8 +15,11 @@ class InventoryButton(Button):
 
 class Inventory(ParentElement):
 
-    def __init__(self, screen: pygame.Surface, player):
+    def __init__(self, game,  screen: pygame.Surface, player):
         super().__init__(screen, './assets/json/graffics/inventory/style.json')
+
+        self.game = game
+
         self.player = player
         self.items = player.inventory
 
@@ -116,7 +119,8 @@ class Inventory(ParentElement):
                     _container=panel,
                     _inv=self
                 )
-                self.event_buttons[f'#weapon{index}'] = button
+                self.game.event_buttons[f'#weapon{index}'] = button
+                #self.event_buttons[f'#weapon{index}'] = button
 
                 self.elements[f'#weapon{index}'] = i
                 x_index += (inter_x + 50)
@@ -149,24 +153,24 @@ class Inventory(ParentElement):
                                  ).UI
 
         self.weapon_tab_button = EventButton(
-                                            _rect=[(0, 0), (100, 50)],
-                                            _text="Armes",
-                                            _ui_manager=self.ui_manager,
-                                            _object_id='#weapon_tab_button',
-                                            _container=self.tab_panel,
-                                            _func= lambda : self.set_focus("weapons")
+                                            rect=[(0, 0), (100, 50)],
+                                            text="Armes",
+                                            ui_manager=self.ui_manager,
+                                            object_id='#weapon_tab_button',
+                                            container=self.tab_panel,
+                                            func= lambda : self.set_focus("weapons")
                                             )
-        self.event_buttons['#weapon_tab_button'] = self.weapon_tab_button
+        self.game.event_buttons['#weapon_tab_button'] = self.weapon_tab_button
 
         self.objects_tab_button = EventButton(
-                                            _rect=[(100, 0), (100, 50)],
-                                            _text="Objets",
-                                            _ui_manager=self.ui_manager,
-                                            _object_id='#object_tab_button',
-                                            _container=self.tab_panel,
-                                            _func= lambda: self.set_focus("objects")
+                                            rect=[(100, 0), (100, 50)],
+                                            text="Objets",
+                                            ui_manager=self.ui_manager,
+                                            object_id='#object_tab_button',
+                                            container=self.tab_panel,
+                                            func= lambda: self.set_focus("objects")
                                             )
-        self.event_buttons['#object_tab_button'] = self.objects_tab_button
+        self.game.event_buttons['#object_tab_button'] = self.objects_tab_button
 
 
         self.info_panel = Element(name='Panel',
@@ -213,4 +217,4 @@ class Inventory(ParentElement):
                                     ui_manager=self.ui_manager,
                                     object_id='@info_label',
                                     container=sub_panel
-            )
+            ).UI

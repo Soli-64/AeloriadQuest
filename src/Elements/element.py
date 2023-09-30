@@ -66,6 +66,29 @@ class ImageElement:
                                         container=self.container
                                         )
 
+class TabPanel:
+
+    def __init__(self, ui_manager, rect, object_id, container):
+
+        self.ui_manager = ui_manager
+        self.rect = rect
+        self.object_id = object_id
+        self.container = container
+
+        self.UI = Element(name='Panel',
+                          rect=self.rect,
+                          ui_manager=self.ui_manager,
+                          object_id=object_id,
+                          container=self.container
+                          ).UI
+
+
+        """Panel(rect=rect,
+                        ui_manager=self.ui_manager,
+                        ids=self.object_id,
+                        container=container
+                        )"""
+
 class Button:
 
     def __init__(self, rect, text, ui_manager, object_id, container):
@@ -84,22 +107,12 @@ class Button:
                                            container=self.container
                                            )
 
-class IndexButton(Button):
-
-    def __init__(self, _rect, _text, _ui_manager, _object_id, _container, _inventory, _id):
-        super().__init__(_rect, _text, _ui_manager, _object_id, _container)
-        self.inventory = _inventory
-        self.index = _id
-
-    def execute(self):
-        self.inventory.set_index()
-
 
 class EventButton(Button):
 
-    def __init__(self, _rect, _text, _ui_manager, _object_id, _container, _func):
-        super().__init__(_rect, _text, _ui_manager, _object_id, _container)
-        self.func = _func
+    def __init__(self, rect, text, ui_manager, object_id, container, func):
+        super().__init__(rect, text, ui_manager, object_id, container)
+        self.func = func
 
     def execute(self):
         self.func()
@@ -109,7 +122,6 @@ class Ids:
 
     def __init__(self, _class_id, _object_id):
         self.all = ObjectID(class_id=_class_id, object_id=_object_id)
-
 
 class ScrollZone:
 
@@ -126,3 +138,5 @@ class ScrollZone:
                                                   container=self.container,
                                                   object_id=self.object_id
                                                   )
+
+

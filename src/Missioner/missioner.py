@@ -35,10 +35,9 @@ class Missioner(Entity):
             temp = True
             while temp:
                 pos = random.choice(data['positions'])
-                if not pos in self.map_manager.game.missioners_occupied_position:
+                if not pos in self.map_manager.game.missioners_occuped_position:
                     temp = False
-            print(pos)
-            self.map_manager.game.missioners_occupied_position.append(pos)
+            self.map_manager.game.missioners_occuped_position.append(pos)
             return pos
 
     def choose_texts(self, typetext):

@@ -1,17 +1,17 @@
-import threading
-
 import pygame, pygame_gui as pg_gui
-from threading import Thread
+import src.Utils.pg_utils as f_pg
 import src.Utils.colors as co, json, sys
+from threading import Thread
 from pygame.locals import *
+from src.Elements.market import Market
 from src.map import MapManager
 from src.player import Player
 from src.Weapons.weapon import Weapon
 from src.Weapons.FireWeapon.fire_weapon import FireWeapon
 from src.Elements.interface import Interface, Alert
 from src.Dialogs.dialog import DialogBox
-import src.Utils.pg_utils as f_pg
 from src.Utils.settings import *
+from src.Utils.config import load_config
 from src.Elements.menu import Menu
 from src.Elements.inventory import Inventory
 from src.Enemy.enemy import DamagedNumber
@@ -20,16 +20,25 @@ class Game:
 
     def __init__(self):
 
-        # Motors elements of the game
+        # Game motors elements
+
+        self.game_config = load_config('./config.txt', ['LANG', 'SCREEN_WIDTH', 'SCREEN_HEIGHT'])
+
         self.isPlaying = False
         self.isDied = False
-        self.lang = LANG
-        self.get_text()
-        self.missioners_occupied_position = []
+        self.lang = self.game_config['LANG']
+        self.get_game_texts()
+
+        self.game_running = True
+
+        self.traders_random_stuffs = False
+        self.missioners_occuped_position = []
+
+        self.event_buttons = {}
 
         # Window elements
-        self.vw = 1200
-        self.vh = 700
+        self.vw = int(self.game_config['SCREEN_WIDTH'])
+        self.vh = int(self.game_config['SCREEN_HEIGHT'])
         self.surface = pygame.display.set_mode((self.vw, self.vh), RESIZABLE)
         pygame.display.set_caption("AeloriadQuest")
 
@@ -39,13 +48,19 @@ class Game:
 
         # Instances Manipulations
         self.player.add_weapons([
-            Weapon('sword', 1, self.map_manager, self.player, './assets/images/sprite/slash/slash_effect_anim_f0.png'),
-            FireWeapon('gun', 1, self.map_manager, self.player, './assets/images/sprite/slash/slash_effect_anim_f0.png')
+            Weapon('sword', 1, self.map_manager),
+            FireWeapon('gun', 1, self.map_manager)
         ])
         self.player.set_manager(self.map_manager)
 
         # Inventory
-        self.i = Inventory(self.surface, self.player)
+        self.inventory = Inventory(self, self.surface, self.player)
+
+        # Market
+        self.market = Market(self, self.surface, self.player)
+
+        # Dialog_box
+        self.dialog_box = DialogBox(self)
 
         # Graphic elements
         self.game_menu = Menu(self.surface, [
@@ -71,18 +86,13 @@ class Game:
                                 'container': None
                             }
                         ])
-
-        self.dialog_box = DialogBox(self)
-        self.inventory = Interface(self.surface, INVENTORY(), f_pg.pygame_image('./assets/images/interfaces/inventory.png', [(self.vw / 3) * 2, (self.vh / 10) * 8]), [])
         self.coin_box = Interface(self.surface, COIN_BOX(self.vw), f_pg.pygame_image('./assets/images/interfaces/coin_box.png', [200, 80]), [])
         self.died_bg = Interface(self.surface, [0, 0], f_pg.pygame_image('./assets/images/menu/died_background.png', [self.vw, self.vh]), [])
         self.w_case = Interface(self.surface, WEAPON_CASE(self.vw, self.vh), f_pg.pygame_image('./assets/images/interfaces/weapon_case.png', [200, 200]), [])
-        self.market = Interface(self.surface, MARKET(self.vw, self.vh), f_pg.pygame_image('./assets/images/interfaces/market/market.png', [self.vw / 1.3, self.vh]), [])
-        self.types = [
-            Interface(self.surface, [50, 200], f_pg.pygame_image('./assets/images/interfaces/type/type_e.png', [120, 70]), []),
-            Interface(self.surface, [50, 300], f_pg.pygame_image('./assets/images/interfaces/type/type_z.png', [120, 80]), [])
-        ]
         self.alerts = []
+
+        # Events declarations
+        pygame.time.set_timer(RESET_TRADERS_STUFF, 1000)
 
         # Init declarations
         self.res_btn = None
@@ -93,44 +103,50 @@ class Game:
 
     def end(self): self.isPlaying = False
 
+    def set_traders_stuff(self):
+        for t in self.map_manager.get_map().traders:
+            t.create_random_stuff()
+
     def died(self):
         self.isDied = True
-        self.pause(False, False)
-
+        self.UI_pause()
 
     def get_map_type(self):
         with open('./assets/json/maps.json', 'r') as file:
             data = json.load(file)
         return data[self.map_manager.current_map]
 
-    def get_text(self):
+    def get_game_texts(self):
         with open('./assets/json/elements_text.json', 'r') as file:
             data = json.load(file)
             self.texts = data[self.lang]
 
     def respawn(self):
         self.player.remove_money(30)
-        self.map_manager.current_map = 'world'
+        self.map_manager.current_map = 'city'
         self.map_manager.teleport_player('player')
         self.player.health = self.player.max_health
         self.run()
 
     def resize(self, w, h):
+        # A voir self.map_manager.set_map_layer_size()
         self.vw, self.vh = w, h
-        self.i.resize(self.surface)
-        self.i.draw_items(self.i.focus)
+
+        self.inventory.resize(self.surface)
+        self.inventory.draw_items(self.inventory.focus)
+
+        self.market.resize(self.surface)
+
         self.surface = pygame.display.set_mode((self.vw, self.vh), RESIZABLE)
+
         self.dialog_box.X_POS = self.vw / 4
         self.dialog_box.Y_POS = self.vh - 130
-        self.inventory = Interface(self.surface, [220, 50], f_pg.pygame_image('./assets/images/interfaces/inventory.png', [(self.vw / 3) * 2, (self.vh / 10) * 8]), [])
+
         self.died_bg = Interface(self.surface, [0, 0], f_pg.pygame_image('./assets/images/menu/died_background.png', [self.vw, self.vh]), [])
         self.coin_box = Interface(self.surface, COIN_BOX(self.vw), f_pg.pygame_image('./assets/images/interfaces/coin_box.png', [200, 80]), [])
         self.w_case = Interface(self.surface, WEAPON_CASE(self.vw, self.vh), f_pg.pygame_image('./assets/images/interfaces/weapon_case.png', [200, 200]), [])
-        self.market = Interface(self.surface, MARKET(self.vw, self.vh), f_pg.pygame_image('./assets/images/interfaces/market/market.png', [self.vw / 1.3, self.vh]), [])
 
     def update(self): self.map_manager.update()
-
-    def r_map_manager(self): return self.map_manager
 
     def handle_input(self):
         pressed = pygame.key.get_pressed()
@@ -143,58 +159,57 @@ class Game:
 
         elif pressed[pygame.K_DOWN]:self.player.move_down()
 
-    def pause(self, inventory=False, market=False):
+    def handle_events(self, event):
+        if event.type == pygame.QUIT:
+            self.game_running = False
+        # Resize the window
+        elif event.type == VIDEORESIZE:
+            self.resize(event.w, event.h)
+        # Events button
+        elif event.type == RESET_TRADERS_STUFF:
+            self.set_traders_stuff()
+        self.inventory.ui_manager.process_events(event)
+        self.market.ui_manager.process_events(event)
+        if event.type == pg_gui.UI_BUTTON_START_PRESS:
+            bouton_id = event.ui_element.object_ids[len(event.ui_element.object_ids) - 1]
+            for key in self.event_buttons.keys():
+                if bouton_id == key:
+                    self.event_buttons[key].execute()
+
+    def UI_inventory(self):
         clock = pygame.time.Clock()
+        self.dialog_box.reading = False
 
-        running = True
-        while running:
+        self.game_running = True
+        while self.game_running:
 
-            # Time Delta set for PygameGui
             time_delta = clock.tick(60) / 1000.0
 
-            # Map, player and enemies drawing
             self.map_manager.draw()
 
-            if inventory:
+            # Interfaces
+            self.coin_box.blit()
+            # Append of player stats
+            pygame.draw.rect(self.surface, (255, 255, 255), (20, 20, 100, 140), 4)
+            self.player.update_stats(self.surface)
 
-                # Inventory
-                self.inventory.blit()
-                # Interfaces
-                self.coin_box.blit()
-                # Append of player stats
-                pygame.draw.rect(self.surface, (255, 255, 255), (20, 20, 100, 140), 4)
-                self.player.update_stats(self.surface)
+            if self.inventory.visible_info_zone:
+                self.inventory.info_zone()
 
-                if self.i.visible_info_zone:
-                    self.i.info_zone()
-
-                self.i.update(time_delta)
-                self.i.draw()
-
-            elif self.isDied:
-                self.died_bg.blit()
-                self.res_btn = f_pg.pygame_image('./assets/images/menu/resurrect_button.png', [self.vw / 3.33, self.vw / 9.99])
-                self.res_btn_rect = self.res_btn.get_rect()
-                self.res_btn_rect.x = self.vw / 3
-                self.res_btn_rect.y = (self.vh / 4) * 3
-                self.surface.blit(self.res_btn, (self.vw / 3, (self.vh / 4 * 3)))
-
-            elif market:
-                self.market.blit()
+            self.inventory.update(time_delta)
+            self.inventory.draw()
 
             pygame.display.flip()
 
             for event in pygame.event.get():
-                # Close Window
-                if event.type == pygame.QUIT:
-                    running = False
-                # If player is died
-                elif event.type == pygame.MOUSEBUTTONDOWN:
-                    if self.isDied:
-                        if self.res_btn_rect.collidepoint(event.pos):
-                            self.respawn()
-                            break
-                 # If window is resized
+
+                self.handle_events(event)
+
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE or pygame.K_b:
+                        self.run()
+
+                # If window is resized
                 elif event.type == VIDEORESIZE:
                     self.resize(event.w, event.h)
                 # Close Inventoy or Market
@@ -202,17 +217,79 @@ class Game:
                     if event.key == pygame.K_ESCAPE or pygame.K_b:
                         self.run()
 
-                inventory = True
-                if inventory:
-                    self.i.ui_manager.process_events(event)
-                    if event.type == pg_gui.UI_BUTTON_START_PRESS:
-                        bouton_id = event.ui_element.object_ids[len(event.ui_element.object_ids) - 1]
-                        for key in self.i.event_buttons.keys():
-                            if bouton_id == key:
-                                self.i.event_buttons[key].execute()
-                        """for element in self.i.buttons:
-                            if bouton_id == element.object_id.object_id:
-                                element.execute()"""
+        pygame.quit()
+        sys.exit()
+
+    def UI_market(self):
+
+        clock = pygame.time.Clock()
+
+        self.game_running = True
+        while self.game_running:
+
+            time_delta = clock.tick(60) / 1000.0
+
+            self.map_manager.draw()
+
+            # Interfaces
+            self.coin_box.blit()
+            # Append of player stats
+            pygame.draw.rect(self.surface, (255, 255, 255), (20, 20, 100, 140), 4)
+            self.player.update_stats(self.surface)
+
+            self.market.update(time_delta)
+            self.market.draw()
+
+            pygame.display.flip()
+
+            for event in pygame.event.get():
+
+                self.handle_events(event)
+
+                # Close Market
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE or pygame.K_b:
+                        self.run()
+
+        pygame.quit()
+        sys.exit()
+
+    def UI_pause(self):
+        clock = pygame.time.Clock()
+
+        self.game_running = True
+        while self.game_running:
+
+            # Time Delta set for PygameGui
+            time_delta = clock.tick(60) / 1000.0
+
+            # Map, player and enemies drawing
+            self.map_manager.draw()
+
+            if self.isDied:
+                self.died_bg.blit()
+                self.res_btn = f_pg.pygame_image('./assets/images/menu/resurrect_button.png', [self.vw / 3.33, self.vw / 9.99])
+                self.res_btn_rect = self.res_btn.get_rect()
+                self.res_btn_rect.x = self.vw / 3
+                self.res_btn_rect.y = (self.vh / 4) * 3
+                self.surface.blit(self.res_btn, (self.vw / 3, (self.vh / 4 * 3)))
+
+            pygame.display.flip()
+
+            for event in pygame.event.get():
+
+                self.handle_events(event)
+
+                # If player is died
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if self.isDied:
+                        if self.res_btn_rect.collidepoint(event.pos):
+                            self.respawn()
+                            break
+                # Close Inventoy or Market
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE or pygame.K_b:
+                        self.run()
 
         pygame.quit()
         sys.exit()
@@ -220,8 +297,8 @@ class Game:
     def run(self):
         clock = pygame.time.Clock()
 
-        running = True
-        while running:
+        self.game_running = True
+        while self.game_running:
             time_delta = clock.tick(60)
             if self.isPlaying:
 
@@ -280,17 +357,9 @@ class Game:
             for event in pygame.event.get():
 
                 self.player.weapon_animation.handle_event(event)
+                self.handle_events(event)
 
-                if event.type == pygame.QUIT:
-                    running = False
-
-                elif event.type == pygame.USEREVENT:
-                    for alert in self.alerts:
-                        alert.end()
-
-                elif event.type == VIDEORESIZE:
-                    self.resize(event.w, event.h)
-                elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.type == pygame.MOUSEBUTTONDOWN:
                     if self.play_btn_rect.collidepoint(event.pos):
                         self.start()
 
@@ -304,10 +373,10 @@ class Game:
                     elif event.key == pygame.K_v:
                         self.map_manager.check_missioner_collision(self.dialog_box)
                         self.map_manager.check_trader_collision(self)
-
                     elif event.key == pygame.K_b:
                         if self.isPlaying:
-                            self.pause(True, False)
+                            self.inventory.draw_items(self.inventory.focus)
+                            self.UI_inventory()
                             break
                     elif event.key == pygame.K_f:
                         self.map_manager.check_chest_collision()

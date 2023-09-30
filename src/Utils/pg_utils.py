@@ -13,6 +13,8 @@ def text(_text, _polic, _size, _color=co.BLACK):
 def percent(_width, _percent):
     return (_width / 100) * _percent
 
+def toHours(p): return (p * 60000) * 60
+
 def set_interval(_event, _millis: int, loops: int) -> None:
     ticks = pg.time.get_ticks()
     index = -1

@@ -1,11 +1,11 @@
 {
-  "FR": {
+  "fr": {
     "buttons": {
       "play_button": "JOUER",
       "settings_button": "PARAMETRES"
     }
   },
-  "EN": {
+  "en": {
     "buttons": {
       "play_button": "PLAY",
       "settings_button": "SETTINGS"

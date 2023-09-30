@@ -43,11 +43,11 @@ class MapManager:
     def __init__(self, screen, player, game):
         self.game = game
         self.maps = dict()
-        self.current_map = "world"
+        self.current_map = "city"
         self.screen = screen
         self.player = player
         self.current_mission = None
-        self.register_map("world", _teleporters=[], _enemys=[], _missioners=[
+        self.register_map("city", _teleporters=[], _enemys=[], _missioners=[
             Missioner('Robin', self)
         ], _items=[
             Chest(100, 100, self)
@@ -94,7 +94,10 @@ class MapManager:
     def check_trader_collision(self, game):
         for sprite in self.get_group().sprites():
             if type(sprite) is Trader and sprite.feet.colliderect(self.player.rect):
-                game.pause(False, True)
+                game.market.stock = sprite.stock
+                game.market.stock = sprite.stock
+                game.market.resize(self.screen)
+                game.UI_market()
 
     def check_collision(self):
 
@@ -109,7 +112,7 @@ class MapManager:
 
         for sprite in self.get_group().sprites():
 
-            if not (isinstance(sprite, f_pg.ImageSprite) or isinstance(sprite, AnimateEffectSprite)):
+            if not (isinstance(sprite, f_pg.ImageSprite) or isinstance(sprite, AnimateEffectSprite) or isinstance(sprite, Chest)):
                 if sprite.feet.collidelist(self.get_walls()) > -1:
                     if type(sprite) is Projectil:
                         self.get_map().projectils.remove(sprite)
@@ -150,12 +153,15 @@ class MapManager:
         self.get_group().draw(self.screen)
         self.get_group().center(self.player.rect.center)
 
+    def set_map_layer_size(self):
+        self.map_layer.set_size(self.screen.get_size())
+
     def register_map(self, _name, _teleporters=[], _enemys=[], _missioners=[], _items=[], _projectils=[], _traders=[], _effects=[], _weapons=[]):
         # --------------- charger la carte (tmx) -----------
         tmx_data = pytmx.util_pygame.load_pygame(f"./map/{_name}.tmx")
         map_data = pyscroll.data.TiledMapData(tmx_data)
-        map_layer = pyscroll.orthographic.BufferedRenderer(map_data, self.screen.get_size())
-        map_layer.zoom = 2
+        self.map_layer = pyscroll.orthographic.BufferedRenderer(map_data, self.screen.get_size())
+        self.map_layer.zoom = 2
 
         # définir la liste de rectangle de collisions
         walls = []
@@ -165,7 +171,7 @@ class MapManager:
                 walls.append(pygame.Rect(obj.x, obj.y, obj.width, obj.height))
 
         # --------------- dessiner le groupe de cartes ------
-        group = pyscroll.PyscrollGroup(map_layer=map_layer, default_layer=9)
+        group = pyscroll.PyscrollGroup(map_layer=self.map_layer, default_layer=14)
 
         group.add(self.player)
 

@@ -8,7 +8,7 @@ class Chest(Item):
         super().__init__('chest', x, y, map_manager)
         self.map_manager = map_manager
         self.content = {
-            'money': random.randint(30, 40),
+            'money': random.randint(100, 100),
             'xp': random.randint(50, 100),
             'weapons': []
         }

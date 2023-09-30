@@ -105,6 +105,6 @@ class Player(Entity):
                 self.selected_weapon.fire_attack()
             else:
                 self.weapon_animation.play_animation(self.map_manager, self.position)
-                self.selected_weapon.attack()
+                self.selected_weapon.attack(self)
         else:
             print('selectionne une arme pour attaquer !')
