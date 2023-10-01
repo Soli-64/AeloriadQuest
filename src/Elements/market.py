@@ -38,21 +38,19 @@ class Market(ParentElement):
         print(self.focus, focus)
         self.focus = focus
 
-    def sell_item(self, price, item_type, item):
-        print('hhhaaa')
+    def sell_item(self, price, item_type, item, id):
         if self.player.money >= price:
             self.player.remove_money(price)
-            print('item acheté')
             self.player.add_weapons([item])
-            self.stock['weapons'].remove(item)
+            print(self.stock['weapons'], item)
+            self.stock['weapons'].pop(id)
             self.resize(self.screen)
 
     def get_prices(self):
         with open('./assets/json/items/price.json', 'r') as file:
             self.prices = json.load((file))
-            print(self.prices)
 
-    def new_article(self, pos, container, item, index):
+    def new_article(self, pos, container, item, index, id):
         panel = Element(name='Panel',
                         rect=[(pos[0], pos[1]), (100, 200)],
                         ui_manager=self.ui_manager,
@@ -70,7 +68,7 @@ class Market(ParentElement):
                              ui_manager=self.ui_manager,
                              object_id=f'#buy_button{index}',
                              container=panel,
-                             func=lambda: self.sell_item(self.prices[item.name][0], 'weapon', item)
+                             func=lambda: self.sell_item(self.prices[item.name][0], 'weapon', item, id)
                              )
         self.game.event_buttons[f'#buy_button{index}'] = button
 
@@ -134,9 +132,9 @@ class Market(ParentElement):
             if line_index >= article_by_line - 1:
                 column_index += 1
                 position[1] += 210
-                self.new_article(position, self.articles, item, index)
+                self.new_article(position, self.articles, item, index, index)
             else:
                 position[0] += 110
                 line_index += 1
-                self.new_article(position, self.articles, item, index)
+                self.new_article(position, self.articles, item, index, index)
                 index += 1
