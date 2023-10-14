@@ -12,6 +12,7 @@ from src.Elements.interface import Interface, Alert
 from src.Dialogs.dialog import DialogBox
 from src.Utils.settings import *
 from src.Utils.config import load_config
+from src.Elements.element import *
 from src.Elements.menu import Menu
 from src.Elements.inventory import Inventory
 from src.Enemy.enemy import DamagedNumber
@@ -63,32 +64,27 @@ class Game:
         self.dialog_box = DialogBox(self)
 
         # Graphic elements
-        self.game_menu = Menu(self.surface, [
-                            {
-                                'name': 'Panel',
-                                'text': '',
-                                'rect': [(200, 50), (200, 500)],
-                                'object_id': '',
-                                'container': None
-                            },
-                            {
-                                'name': 'Button',
-                                'text': self.texts['buttons']['play_button'],
-                                'rect': [(200, 200), (200, 50)],
-                                'object_id': 'button',
-                                'container': None
-                            },
-                            {
-                                'name': 'Button',
-                                'text': self.texts['buttons']['settings_button'],
-                                'rect': [(200, 300), (200, 50)],
-                                'object_id': 'button',
-                                'container': None
-                            }
-                        ])
+        self.ui_manager = pg_gui.UIManager(self.surface.get_size())
+
+        self.panel_buttons = Element(name='Panel',
+                                     rect=[(200, 0), (400, 300)],
+                                     ui_manager=self.ui_manager,
+                                     object_id='',
+                                     container=None
+                                     ).UI
+
+        self.play_btn = EventButton(
+            rect=[(100, 100), (300, 100)],
+            text='Play',
+            ui_manager=self.ui_manager,
+            object_id='#play_button',
+            container=self.panel_buttons,
+            func=lambda: self.start()
+        )
+
+        self.event_buttons['#play_button'] = self.play_btn
         self.coin_box = Interface(self.surface, COIN_BOX(self.vw), f_pg.pygame_image('./assets/images/interfaces/coin_box.png', [200, 80]), [])
         self.died_bg = Interface(self.surface, [0, 0], f_pg.pygame_image('./assets/images/menu/died_background.png', [self.vw, self.vh]), [])
-        self.w_case = Interface(self.surface, WEAPON_CASE(self.vw, self.vh), f_pg.pygame_image('./assets/images/interfaces/weapon_case.png', [200, 200]), [])
         self.alerts = []
 
         # Events declarations
@@ -165,11 +161,14 @@ class Game:
         # Resize the window
         elif event.type == VIDEORESIZE:
             self.resize(event.w, event.h)
+        elif event.type == REMOVE_ALERTS:
+            for a in self.alerts: a.end()
         # Events button
         elif event.type == RESET_TRADERS_STUFF:
             self.set_traders_stuff()
         self.inventory.ui_manager.process_events(event)
         self.market.ui_manager.process_events(event)
+        self.ui_manager.process_events(event)
         if event.type == pg_gui.UI_BUTTON_START_PRESS:
             bouton_id = event.ui_element.object_ids[len(event.ui_element.object_ids) - 1]
             for key in self.event_buttons.keys():
@@ -260,7 +259,7 @@ class Game:
         self.game_running = True
         while self.game_running:
 
-            # Time Delta set for PygameGui
+            # time delta set for PygameGui
             time_delta = clock.tick(60) / 1000.0
 
             # Map, player and enemies drawing
@@ -309,7 +308,6 @@ class Game:
                 # Interfaces
                 pygame.draw.rect(self.surface, co.WHITE, (20, 20, 100, 140), 4)
                 self.coin_box.blit()
-                self.w_case.blit()
 
                 if self.player.selected_weapon:
                     self.surface.blit(self.player.selected_weapon.item_image, SELECTED_WEAPON(self.vw, self.vh))
@@ -320,14 +318,11 @@ class Game:
                     self.surface.blit(
                                     f_pg.text(f'{len(self.map_manager.get_map().enemys)} / {self.map_manager.current_mission.n_enemy}',
                                                 None,
-                                                35,
+                                                65,
                                                 co.WHITE),
                                     ((self.vw / 2) - 20, self.vh - 50)
                                     )
 
-                """for type in self.types:
-                    pass
-                    type.blit()"""
                 for alert in self.alerts:
                     if type(alert) is DamagedNumber:
                         alert.move()
@@ -336,19 +331,15 @@ class Game:
                 self.update()
 
             else:
-                # PyGame Elements
-
                 # Background
                 bg = f_pg.pygame_image('./assets/images/menu/background.png', [self.vw, self.vh])
                 self.surface.blit(bg, (0, 0))
 
                 # Pygame Gui
-                self.game_menu.update(time_delta)
-                self.game_menu.draw()
-
-                # Play button
-                self.play_btn_rect = self.game_menu.elems[1].rect
-                self.settings_btn_rect = self.game_menu.elems[1].rect
+                """self.game_menu.update(time_delta)
+                self.game_menu.draw()"""
+                self.ui_manager.update(time_delta)
+                self.ui_manager.draw_ui(self.surface)
 
             # Window update
             pygame.display.flip()
@@ -359,11 +350,11 @@ class Game:
                 self.player.weapon_animation.handle_event(event)
                 self.handle_events(event)
 
-                if event.type == pygame.MOUSEBUTTONDOWN:
+                """if event.type == pygame.MOUSEBUTTONDOWN:
                     if self.play_btn_rect.collidepoint(event.pos):
-                        self.start()
+                        self.start()"""
 
-                elif event.type == pygame.KEYDOWN:
+                if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
                         self.player.attack('')
                     elif event.key == pygame.K_z:

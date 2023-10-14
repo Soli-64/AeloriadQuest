@@ -1,6 +1,9 @@
 # AeloriadQuests
 
-Using Python, Pygame and PygameGui
+<h1> Welcome to Urbsmissio, the city of Missions.</h1>
+<h2> In this game, you play as Aeloriad, a young dungeon explorer who is looking for money for 
+     launch hi's brand of armors. You achieve missions for money, as fighting against monsters 
+</h2>
 
-A game where you have to fight against monsters to earn money and upgrade your weapons and armor.
+<h3> Using Python, Pygame and PygameGui </h3>
 

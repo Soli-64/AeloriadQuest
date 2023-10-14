@@ -1,20 +1,9 @@
-import json
-
-import pygame, pygame_gui as pg_gui
+import pygame, pygame_gui as pg_gui, json
 from src.Elements.element import *
 from src.Weapons.weapon import Weapon
 from src.Weapons.magic_weapon import MagicWeapon
 from src.Weapons.FireWeapon.fire_weapon import FireWeapon
 
-"""class InventoryButton(Button):
-
-    def __init__(self, _rect, _text, _ui_manager, _object_id, _container, _inv):
-        super().__init__(_rect, _text, _ui_manager, _object_id, _container)
-        self.inv = _inv
-    def execute(self):
-        self.inv.visible_info_zone = True
-        self.inv.pressed_button_id = self.object_id.object_id
-"""
 
 class Market(ParentElement):
 
@@ -35,14 +24,12 @@ class Market(ParentElement):
         self.resize(screen)
 
     def set_focus(self, focus):
-        print(self.focus, focus)
         self.focus = focus
 
     def sell_item(self, price, item_type, item, id):
         if self.player.money >= price:
             self.player.remove_money(price)
             self.player.add_weapons([item])
-            print(self.stock['weapons'], item)
             self.stock['weapons'].pop(id)
             self.resize(self.screen)
 
@@ -132,6 +119,7 @@ class Market(ParentElement):
             if line_index >= article_by_line - 1:
                 column_index += 1
                 position[1] += 210
+                position[0] = 5
                 self.new_article(position, self.articles, item, index, index)
             else:
                 position[0] += 110

@@ -75,6 +75,9 @@ class Player(Entity):
             self.inventory['weapons'].append(w)
         self.select_weapons([0, 1])
 
+    def add_object(self, type, object):
+        self.inventory[type].append(object)
+
     def isEnemy(self): return False
 
     def add_money(self, amount): self.money += amount

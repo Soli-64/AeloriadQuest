@@ -1,4 +1,5 @@
 import pygame
+from src.Utils.settings import *
 
 
 class Interface:
@@ -27,14 +28,14 @@ class Cadre:
 
 class Alert:
 
-    def __init__(self, _game, _text, _color, _seconds, _pos):
+    def __init__(self, game, text, color, seconds, pos):
 
-        self.game = _game
+        self.game = game
 
-        self.text = _text
-        self.color = _color
-        self.time = int(_seconds * 1000)
-        self.pos = _pos
+        self.text = text
+        self.color = color
+        self.time = int(seconds * 1000)
+        self.pos = pos
         self.font = pygame.font.Font(None, 18) # pygame.font.Font('./assets/fonts/dialog_font.ttf', 21)
 
         surface = self.font.render(self.text, False, self.color)
@@ -43,13 +44,13 @@ class Alert:
         sprite.rect = surface.get_rect()
         self.sprite = sprite
         self.sprite.feet = pygame.Rect(0, 0, self.sprite.rect.width * 0.5, 12)
-        self.sprite.rect.x, self.sprite.rect.y = _pos[0], _pos[1]
+        self.sprite.rect.x, self.sprite.rect.y = pos[0], pos[1]
 
         self.game.map_manager.get_map().effects.append( self.sprite )
         self.game.map_manager.get_group().add( self.sprite )
 
         self.game.alerts.append(self)
 
-        pygame.time.set_timer(pygame.USEREVENT, self.time)
+        pygame.time.set_timer(REMOVE_ALERTS, self.time)
 
     def end(self): self.game.map_manager.get_group().remove(self.sprite)
