@@ -43,6 +43,12 @@ def time_event(_event, _millis: int) -> None:
 
 def ImageToSprite(image): return ImageSprite(image)
 
+def ImagesSuperposition(size, image, other_image):
+    final_image = pg.Surface(size)
+    final_image.blit(image, (0, 0))
+    final_image.blit(other_image, (0, 0))
+    return final_image
+
 
 class ImageSprite(pg.sprite.Sprite):
     def __init__(self, image):

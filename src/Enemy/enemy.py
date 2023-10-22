@@ -22,26 +22,25 @@ class Enemy(Entity):
         super().__init__("enemy", './assets/images/sprite/enemys/enemy.png', self.x, self.y)
         self.player = player
         self.map_manager = map_manager
-        self.set_enemy_animation('./assets/images/sprite/enemys/damaged/enemy_d.png')
         self.speed = randint(1, 3)
         self.max_health = 50
         self.health = 50
         self.damage = 1
         self.teleport(randint(200, 2000), randint(50, 2000))
-        self.direction = 'x'
+        self.ia_direction = 'x'
 
     def apply_damage(self, amount):
-        self.animations('damaged')
+        self.animations(self.direction, 'damaged')
         DamagedNumber(self.map_manager.game, f'{amount}', (255, 255, 255), 500, [self.rect.x, self.rect.y])
         self.health -= amount
         if self.health <= 0:
             self.remove()
 
     def modifyDirection(self):
-        if self.direction == 'x':
-            self.direction = 'y'
+        if self.ia_direction == 'x':
+            self.ia_direction = 'y'
         else:
-            self.direction = 'x'
+            self.ia_direction = 'x'
 
     def isEnemy(self):
         return True
@@ -52,7 +51,7 @@ class Enemy(Entity):
 
     def move(self):
         if self.localize(self.player, 200):
-            if self.direction == 'x':
+            if self.ia_direction == 'x':
                 self.move_X()
             else:
                 self.move_Y()

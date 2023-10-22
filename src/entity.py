@@ -8,19 +8,25 @@ class Entity(AnimateSprite):
         super().__init__(path)
 
         self.image_path = path
+        print(self.image_path)
         self.images = {
-            'down': self.get_images(0),
-            'left': self.get_images(32),
-            'right': self.get_images(64),
-            'up': self.get_images(96),
+            'down': self.get_images(self.image_path, 0),
+            'left': self.get_images(self.image_path, 32),
+            'right': self.get_images(self.image_path, 64),
+            'up': self.get_images(self.image_path, 96),
             'slash': self.get_splited_images('./assets/images/sprite/slash', 'slash_effect_anim_f', 2)
+        }
+        self.effects_images = {
+            'damaged_down': self.get_images('./assets/images/sprite/effects/damaged.png', 0),
+            'damaged_left': self.get_images('./assets/images/sprite/effects/damaged.png', 32),
+            'damaged_right': self.get_images('./assets/images/sprite/effects/damaged.png', 64),
+            'damaged_up': self.get_images('./assets/images/sprite/effects/damaged.png', 96),
         }
 
         self.name = name
         self.direction = 'down'
-        self.set_spritesheets()
         self.sprite_sheet = pygame.image.load(path)
-        self.image = self.get_image(0, 0)
+        self.image = self.get_image(self.image_path, 0, 0)
         self.image.set_colorkey(0, 0)
         self.rect = self.image.get_rect()
         self.feet = pygame.Rect(0, 0, self.rect.width * 0.5, 12)

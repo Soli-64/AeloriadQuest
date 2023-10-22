@@ -1,7 +1,6 @@
 import pygame, pygame_gui as pg_gui
 import src.Utils.pg_utils as f_pg
 import src.Utils.colors as co, json, sys
-from threading import Thread
 from pygame.locals import *
 from src.Elements.market import Market
 from src.map import MapManager
@@ -64,27 +63,27 @@ class Game:
         self.dialog_box = DialogBox(self)
 
         # Graphic elements
-        self.ui_manager = pg_gui.UIManager(self.surface.get_size())
+        self.ui_manager = pg_gui.UIManager(self.surface.get_size(), './assets/json/graffics/game-menu/style.json')
 
-        self.panel_buttons = Element(name='Panel',
-                                     rect=[(200, 0), (400, 300)],
+        """self.panel_buttons = Element(name='Panel',
+                                     rect=[(-5, -5), (self.surface.get_width() + 10, self.surface.get_height() + 10)],
                                      ui_manager=self.ui_manager,
-                                     object_id='',
+                                     object_id=Ids(_class_id='@panel' , _object_id='#mainpanel').all,
                                      container=None
                                      ).UI
 
         self.play_btn = EventButton(
             rect=[(100, 100), (300, 100)],
-            text='Play',
+            text=self.texts['buttons']['play_button'],
             ui_manager=self.ui_manager,
-            object_id='#play_button',
+            object_id=Ids(_class_id='@button', _object_id='#play_button').all,
             container=self.panel_buttons,
             func=lambda: self.start()
-        )
+        )"""
 
-        self.event_buttons['#play_button'] = self.play_btn
         self.coin_box = Interface(self.surface, COIN_BOX(self.vw), f_pg.pygame_image('./assets/images/interfaces/coin_box.png', [200, 80]), [])
         self.died_bg = Interface(self.surface, [0, 0], f_pg.pygame_image('./assets/images/menu/died_background.png', [self.vw, self.vh]), [])
+        self.w_case = Interface(self.surface, WEAPON_CASE(self.vw, self.vh), f_pg.pygame_image('./assets/images/interfaces/weapon_case.png', [200, 200]), [])
         self.alerts = []
 
         # Events declarations
@@ -93,7 +92,6 @@ class Game:
         # Init declarations
         self.res_btn = None
         self.res_btn_rect = None
-        self.play_btn_rect = None
 
     def start(self): self.isPlaying = True
 
@@ -127,6 +125,26 @@ class Game:
     def resize(self, w, h):
         # A voir self.map_manager.set_map_layer_size()
         self.vw, self.vh = w, h
+
+        # game menu
+
+        self.panel_buttons = Element(name='Panel',
+                                     rect=[(-5, -5), (self.surface.get_width() + 10, self.surface.get_height() + 10)],
+                                     ui_manager=self.ui_manager,
+                                     object_id=Ids(_class_id='@panel', _object_id='#mainpanel').all,
+                                     container=None
+                                     ).UI
+
+        self.play_btn = EventButton(
+            rect=[(100, 100), (300, 100)],
+            text=self.texts['buttons']['play_button'],
+            ui_manager=self.ui_manager,
+            object_id=Ids(_class_id='@button', _object_id='#play_button').all,
+            container=self.panel_buttons,
+            func=lambda: self.start()
+        )
+
+        self.event_buttons['#play_button'] = self.play_btn
 
         self.inventory.resize(self.surface)
         self.inventory.draw_items(self.inventory.focus)
@@ -208,9 +226,6 @@ class Game:
                     if event.key == pygame.K_ESCAPE or pygame.K_b:
                         self.run()
 
-                # If window is resized
-                elif event.type == VIDEORESIZE:
-                    self.resize(event.w, event.h)
                 # Close Inventoy or Market
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE or pygame.K_b:
@@ -279,16 +294,15 @@ class Game:
 
                 self.handle_events(event)
 
-                # If player is died
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if self.isDied:
                         if self.res_btn_rect.collidepoint(event.pos):
                             self.respawn()
                             break
-                # Close Inventoy or Market
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE or pygame.K_b:
                         self.run()
+                        break
 
         pygame.quit()
         sys.exit()
@@ -308,6 +322,7 @@ class Game:
                 # Interfaces
                 pygame.draw.rect(self.surface, co.WHITE, (20, 20, 100, 140), 4)
                 self.coin_box.blit()
+                self.w_case.blit()
 
                 if self.player.selected_weapon:
                     self.surface.blit(self.player.selected_weapon.item_image, SELECTED_WEAPON(self.vw, self.vh))
@@ -315,6 +330,7 @@ class Game:
 
                 if self.get_map_type() == 'dungeon':
                     self.player.set_weapon_image()
+                    # Write ennemies number
                     self.surface.blit(
                                     f_pg.text(f'{len(self.map_manager.get_map().enemys)} / {self.map_manager.current_mission.n_enemy}',
                                                 None,
@@ -331,13 +347,36 @@ class Game:
                 self.update()
 
             else:
-                # Background
-                bg = f_pg.pygame_image('./assets/images/menu/background.png', [self.vw, self.vh])
-                self.surface.blit(bg, (0, 0))
+
+                self.panel_buttons = Element(name='Panel',
+                                             rect=[(-5, -5),
+                                                   (self.surface.get_width() + 10, self.surface.get_height() + 10)],
+                                             ui_manager=self.ui_manager,
+                                             object_id=Ids(_class_id='@panel', _object_id='#mainpanel').all,
+                                             container=None
+                                             ).UI
+
+                self.play_btn = EventButton(
+                    rect=[(100, 100), (300, 100)],
+                    text=self.texts['buttons']['play_button'],
+                    ui_manager=self.ui_manager,
+                    object_id=Ids(_class_id='@button', _object_id='#play_button').all,
+                    container=self.panel_buttons,
+                    func=lambda: self.start()
+                )
+                self.event_buttons['#play_button'] = self.play_btn
+
+                self.settings_btn = EventButton(
+                    rect=[(100, 300), (300, 100)],
+                    text=self.texts['buttons']['settings_button'],
+                    ui_manager=self.ui_manager,
+                    object_id=Ids(_class_id='@button', _object_id='#settings_button').all,
+                    container=self.panel_buttons,
+                    func=lambda: print('Paramètres')
+                )
+                self.event_buttons['#settings_button'] = self.settings_btn
 
                 # Pygame Gui
-                """self.game_menu.update(time_delta)
-                self.game_menu.draw()"""
                 self.ui_manager.update(time_delta)
                 self.ui_manager.draw_ui(self.surface)
 
@@ -349,10 +388,6 @@ class Game:
 
                 self.player.weapon_animation.handle_event(event)
                 self.handle_events(event)
-
-                """if event.type == pygame.MOUSEBUTTONDOWN:
-                    if self.play_btn_rect.collidepoint(event.pos):
-                        self.start()"""
 
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:

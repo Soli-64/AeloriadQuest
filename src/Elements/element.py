@@ -30,7 +30,7 @@ class Element:
         self.UI = eval(f'pg_gui.elements.UI{name}('
                        f'relative_rect=pygame.Rect({rect[0]}, {rect[1]}), '
                        f'manager=self.ui_manager, '
-                       f'object_id="{object_id}",'
+                       f'object_id={str(object_id)},'
                        f'container=self.container)')
 
 
@@ -46,7 +46,7 @@ class TextElement:
                        f'relative_rect=pygame.Rect({rect[0]}, {rect[1]}), '
                        f'text="{text}", '
                        f'manager=self.ui_manager, '
-                       f'object_id="{object_id}",'
+                       f'object_id={object_id},'
                        f'container=self.container)')
 
 class ImageElement:

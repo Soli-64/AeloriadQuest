@@ -41,19 +41,19 @@ class Market(ParentElement):
         panel = Element(name='Panel',
                         rect=[(pos[0], pos[1]), (100, 200)],
                         ui_manager=self.ui_manager,
-                        object_id='@article',
+                        object_id=Ids(_class_id='@articles', _object_id='#').all,
                         container=container
                         ).UI
         image = ImageElement(rect=[(0, 5), (90, 90)],
                              img=item.item_image,
                              ui_manager=self.ui_manager,
-                             object_id='@item_img',
+                             object_id=Ids(_class_id='@item_img', _object_id='#').all,
                              container=panel
                              ).UI
         button = EventButton(rect=[(0, 150), (90, 40)],
                              text='Acheter',
                              ui_manager=self.ui_manager,
-                             object_id=f'#buy_button{index}',
+                             object_id=Ids(_class_id='@v_panel', _object_id=f'#buy_button{index}').all,
                              container=panel,
                              func=lambda: self.sell_item(self.prices[item.name][0], 'weapon', item, id)
                              )
@@ -67,20 +67,20 @@ class Market(ParentElement):
         self.panel = Element(name='Panel',
                              rect=[(100, 70), (self.screen.get_size()[0] - 200, self.screen.get_size()[1] - 150)],
                              ui_manager=self.ui_manager,
-                             object_id='@market',
+                             object_id=Ids(_class_id='@market', _object_id='#').all,
                              container=None
                              ).UI
 
         self.tab_panel = TabPanel(ui_manager=self.ui_manager,
                                   rect=[(0, 0), (self.screen.get_size()[0] - 200, 60)],
-                                  object_id='@tab_panel',
+                                  object_id=Ids(_class_id='@tab_panel', _object_id='#').all,
                                   container=self.panel
                                   ).UI
 
         self.tab_weapon = EventButton(rect=[(0, 0), (120, 60)],
                                      text='Armes',
                                      ui_manager=self.ui_manager,
-                                     object_id='@tab_button',
+                                     object_id=Ids(_class_id='@tab_button', _object_id='#').all,
                                      container=self.tab_panel,
                                      func= lambda: self.set_focus('weapon')
                                      )
@@ -97,14 +97,14 @@ class Market(ParentElement):
         self.shop_zone = Element(name='Panel',
                                  rect=[(0, 60), (self.screen.get_size()[0] - (self.screen.get_size()[0] / 2), self.screen.get_size()[1] - 195)],
                                  ui_manager=self.ui_manager,
-                                 object_id="#shop_zone",
+                                 object_id=Ids(_class_id='@', _object_id='#shop_zone').all,
                                  container=self.panel
                                  ).UI
 
         self.articles = Element(name='Panel',
                                 rect=[(0, 40), (self.screen.get_size()[0] - (self.screen.get_size()[0] / 2), self.screen.get_size()[1] - 270)],
                                 ui_manager=self.ui_manager,
-                                object_id='@articles',
+                                object_id=Ids(_class_id='@articles', _object_id='#').all,
                                 container=self.shop_zone
                                 ).UI
 

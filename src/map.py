@@ -173,8 +173,6 @@ class MapManager:
         # --------------- dessiner le groupe de cartes ------
         group = pyscroll.PyscrollGroup(map_layer=self.map_layer, default_layer=14)
 
-        group.add(self.player)
-
         for missioner in _missioners:
             group.add(missioner)
 
@@ -192,6 +190,8 @@ class MapManager:
 
         for effect in _effects:
             group.add(effect)
+
+        group.add(self.player)
 
         # créer un objet Map
         self.maps[_name] = Map(_name, walls, group, tmx_data, _teleporters, _enemys, _missioners, _items, _projectils, _traders, _effects, _weapons)

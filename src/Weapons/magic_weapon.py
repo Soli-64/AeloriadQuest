@@ -11,4 +11,7 @@ class MagicWeapon(Weapon):
         self.player = player
 
     def magic_attack(self):
-        pass
+        for enemy in self.map_manager.get_map().enemys:
+            knock_stats = player.localize(enemy, player.reach + self.reach)
+            if knock_stats:
+                enemy.apply_damage(self.damage)

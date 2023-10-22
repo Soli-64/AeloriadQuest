@@ -78,7 +78,7 @@ class Inventory(ParentElement):
             self.weapon_panel = Element(name='Panel',
                                         rect=[(-2, 50), (self.screen.get_size()[0] - 500, self.screen.get_size()[1] - 250)],
                                         ui_manager=self.ui_manager,
-                                        object_id='@weapon_panel',
+                                        object_id=Ids(_class_id='@weapon_panel', _object_id='').all,
                                         container=self.panel
                                         ).UI
 
@@ -86,7 +86,7 @@ class Inventory(ParentElement):
                                              rect=[(20, 10), (500, 50)],
                                              text='ARMES',
                                              ui_manager=self.ui_manager,
-                                             object_id='@label',
+                                             object_id=Ids(_class_id='@label', _object_id='#weapon_label').all,
                                              container=self.weapon_panel
                                              ).UI
 
@@ -100,14 +100,14 @@ class Inventory(ParentElement):
                 panel = Element(name='Panel',
                                 rect=[(x_index, y_index), (50, 50)],
                                 ui_manager=self.ui_manager,
-                                object_id='',
+                                object_id=None,
                                 container=self.weapon_panel
                                 ).UI
 
-                image = ImageElement(rect=[(2, 2), (45, 45)],
+                image = ImageElement(rect=[(2, 2), (40, 40)],
                                      img= i.item_image,
                                      ui_manager=self.ui_manager,
-                                     object_id='',
+                                     object_id=None,
                                      container=panel
                                      ).UI
 
@@ -120,7 +120,6 @@ class Inventory(ParentElement):
                     _inv=self
                 )
                 self.game.event_buttons[f'#weapon{index}'] = button
-                #self.event_buttons[f'#weapon{index}'] = button
 
                 self.elements[f'#weapon{index}'] = i
                 x_index += (inter_x + 50)
@@ -141,14 +140,14 @@ class Inventory(ParentElement):
         self.panel = Element(name='Panel',
                              rect=[(120, 100), (self.screen.get_size()[0] - 150, self.screen.get_size()[1] - 200)],
                              ui_manager=self.ui_manager,
-                             object_id='@inventory',
+                             object_id=Ids(_class_id='@inventory', _object_id='#').all,
                              container=None
                              ).UI
 
         self.tab_panel = Element(name='Panel',
                                  rect=[(-2, -2), (self.screen.get_size()[0] - 500, 50)],
                                  ui_manager=self.ui_manager,
-                                 object_id='@panel',
+                                 object_id=Ids(_class_id='@panel', _object_id='#').all,
                                  container=self.panel
                                  ).UI
 
@@ -156,7 +155,7 @@ class Inventory(ParentElement):
                                             rect=[(0, 0), (100, 50)],
                                             text="Armes",
                                             ui_manager=self.ui_manager,
-                                            object_id='#weapon_tab_button',
+                                            object_id=Ids(_class_id='@', _object_id='#weapon_tab_button').all,
                                             container=self.tab_panel,
                                             func= lambda : self.set_focus("weapons")
                                             )
@@ -166,7 +165,7 @@ class Inventory(ParentElement):
                                             rect=[(100, 0), (100, 50)],
                                             text="Objets",
                                             ui_manager=self.ui_manager,
-                                            object_id='#object_tab_button',
+                                            object_id=Ids(_class_id='@', _object_id='#object_tab_button').all,
                                             container=self.tab_panel,
                                             func= lambda: self.set_focus("objects")
                                             )
@@ -176,7 +175,7 @@ class Inventory(ParentElement):
         self.info_panel = Element(name='Panel',
                                   rect=[(self.screen.get_size()[0] - 500, -3), (350, self.screen.get_size()[1] - 200)],
                                   ui_manager=self.ui_manager,
-                                  object_id='@panel',
+                                  object_id=Ids(_class_id='@panel', _object_id='#').all,
                                   container=self.panel
                                   ).UI
 
@@ -190,21 +189,21 @@ class Inventory(ParentElement):
         self.sub_info_panel = Element(name='Panel',
                                       rect=[(0, 0), (350, self.screen.get_size()[1] - 200)],
                                       ui_manager=self.ui_manager,
-                                      object_id= '#sub_info_panel', # No Ids('@v_panel', '#sub_info_panel').all,
+                                      object_id= Ids(_class_id='@v_panel', _object_id='#sub_info_panel').all, # No Ids('@v_panel', '#sub_info_panel').all,
                                       container=self.info_panel
                                       ).UI
 
         image = ImageElement(rect=[(70, 0), (200, 200)],
                              img=target_element.item_image,
                              ui_manager=self.ui_manager,
-                             object_id='',
+                             object_id=Ids(_class_id='@', _object_id='#').all,
                              container=self.sub_info_panel
                              )
 
         sub_panel = Element(name='Panel',
                             rect=[(-5, 200), (350, self.screen.get_size()[1] - 410)],
                             ui_manager=self.ui_manager,
-                            object_id= '#sub_panel', # No Ids('@a', '#sub_info_label').all,
+                            object_id= Ids(_class_id='@', _object_id='#sub_panel').all, # No Ids('@a', '#sub_info_label').all,
                             container=self.sub_info_panel
                             ).UI
 
@@ -215,6 +214,6 @@ class Inventory(ParentElement):
                                     rect=[(0, 0), (350, 50)],
                                     text=f'Dégats: {target_element.damage}',
                                     ui_manager=self.ui_manager,
-                                    object_id='@info_label',
+                                    object_id=Ids(_class_id='@info_label', _object_id='#').all,
                                     container=sub_panel
             ).UI
