@@ -27,7 +27,7 @@ exe = EXE(pyz,
           # options,
           exclude_binaries=True,
           name='AeloriadQuest',
-          debug=False, # set this to True for debug output
+          debug=True, # set this to True for debug output
           strip=False,
           upx=True,
           console=True ) # set this to False this to remove the console

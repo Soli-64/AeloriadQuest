@@ -10,7 +10,6 @@ from src.Weapons.FireWeapon.fire_weapon import FireWeapon
 from src.Elements.interface import Interface, Alert
 from src.Dialogs.dialog import DialogBox
 from src.Utils.settings import *
-from src.Utils.config import load_config
 from src.Elements.element import *
 from src.Elements.menu import Menu
 from src.Elements.inventory import Inventory
@@ -22,7 +21,7 @@ class Game:
 
         # Game motors elements
 
-        self.game_config = load_config('./config.txt', ['LANG', 'SCREEN_WIDTH', 'SCREEN_HEIGHT'])
+        self.game_config = self.load_config('./assets/config.txt', ['LANG', 'SCREEN_WIDTH', 'SCREEN_HEIGHT'])
 
         self.isPlaying = False
         self.isDied = False
@@ -114,6 +113,29 @@ class Game:
         with open('./assets/json/elements_text.json', 'r') as file:
             data = json.load(file)
             self.texts = data[self.lang]
+
+    def load_config(self, file_path: str, values: [str]):
+
+        config = {}
+
+        with open(file_path, 'r') as file:
+
+            for val in values:
+                file.seek(0)
+
+                section_name = val
+                print('test')
+
+                for line in file:
+
+                    line = line.strip()
+                    line_name = line.split('=')[0]
+
+                    if line_name == val:
+                        key, value = line.split('=', 1)
+                        config[key.strip()] = value.strip()
+
+        return config
 
     def respawn(self):
         self.player.remove_money(30)
