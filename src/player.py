@@ -38,8 +38,8 @@ class Player(Entity):
         self.selected_weapon = None
         self.xp = 0
         self.munitions = {
-            "normale": 20,
-            "petites": 20,
+            "normal": 20,
+            "little": 20,
             "grandes": 10,
             "lourdes": 5,
             "explosives": 2,
@@ -70,10 +70,9 @@ class Player(Entity):
             else:
                 self.currents_weapons.append(self.weapons[indexs[x]])
 
-    def add_weapons(self, weapons):
-        for w in weapons:
-            self.inventory['weapons'].append(w)
-        self.select_weapons([0, 1])
+    def add_objects(self, objs, obj_type):
+        for obj in objs:
+            self.inventory[obj_type].append(obj)
 
     def add_object(self, type, object):
         self.inventory[type].append(object)
@@ -110,4 +109,4 @@ class Player(Entity):
                 self.weapon_animation.play_animation(self.map_manager, self.position)
                 self.selected_weapon.attack(self)
         else:
-            print('selectionne une arme pour attaquer !')
+            print('select a weapon for attack !')

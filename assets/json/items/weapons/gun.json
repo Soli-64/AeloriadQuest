@@ -4,7 +4,7 @@
   "game_image": "./assets/images/weapons/game/sword.png",
   "reach": 10,
   "rarity": "atypique",
-  "munition_type": "petites",
+  "munition_type": "little",
   "type": "weapon",
   "level_stats": {
     "1": {

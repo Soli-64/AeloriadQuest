@@ -1,7 +1,6 @@
 import pygame
 import src.Utils.pg_utils as f_pg
 from src.Utils.settings import *
-from threading import Thread
 
 class AnimateSprite(pygame.sprite.Sprite):
 
@@ -12,6 +11,7 @@ class AnimateSprite(pygame.sprite.Sprite):
         self.effect_sprite_sheet = None
         self.animation_index = 0
         self.clock = 0
+        self.effects_images = {}
         self.images = []
         self.speed = 3
 
@@ -76,7 +76,7 @@ class AnimateEffectSprite(pygame.sprite.Sprite):
         self.set_none_image()
 
         self.rect = self.image.get_rect()
-        self.images = self.get_splited_images()
+        self.images = self.get_split_images()
 
     def set_none_image(self): self.image = f_pg.pygame_image('./assets/images/empty.png', [16, 16])
 
@@ -142,7 +142,7 @@ class AnimateEffectSprite(pygame.sprite.Sprite):
     def rotate(self, degree):
         self.image = pg.transform.rotozoom(self.image, degree, 1)
 
-    def get_splited_images(self):
+    def get_split_images(self):
         images = []
         for i in range(0, self.images_number):
             image = f_pg.pygame_image(f'{self.file_path}/{self.animation_name}{i}.png', [16, 16])

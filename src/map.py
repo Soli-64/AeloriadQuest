@@ -12,7 +12,6 @@ from src.Elements.interface import Alert
 from src.Weapons.weapon import Weapon
 from src.Weapons.magic_weapon import MagicWeapon
 from src.Weapons.FireWeapon.fire_weapon import FireWeapon
-from src.player import Player
 import src.Utils.pg_utils as f_pg
 
 @dataclass
@@ -96,7 +95,7 @@ class MapManager:
             if type(sprite) is Trader and sprite.feet.colliderect(self.player.rect):
                 game.market.stock = sprite.stock
                 game.market.stock = sprite.stock
-                game.market.resize(self.screen)
+                game.market.resize()
                 game.UI_market()
 
     def check_collision(self):

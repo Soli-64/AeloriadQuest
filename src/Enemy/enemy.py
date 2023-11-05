@@ -1,9 +1,7 @@
 import random
-
 from src.entity import Entity
 from random import randint
 from src.Elements.interface import Alert
-import pygame
 
 
 class DamagedNumber(Alert):

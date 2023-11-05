@@ -1,14 +1,16 @@
 {
   "fr": {
     "buttons": {
-      "play_button": "JOUER",
-      "settings_button": "PARAMETRES"
+      "play": "JOUER",
+      "settings": "PARAMETRES",
+      "resurrect": "RESSUSCITER"
     }
   },
   "en": {
     "buttons": {
-      "play_button": "PLAY",
-      "settings_button": "SETTINGS"
+      "play": "PLAY",
+      "settings": "SETTINGS",
+      "resurrect": "RESURRECT"
     }
   }
 }

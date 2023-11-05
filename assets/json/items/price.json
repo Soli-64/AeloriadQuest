@@ -3,7 +3,7 @@
   "sword": [35, 20],
   "gun": [50, 35],
   "charger_normal": [40, 20],
-  "charger_petites": [40, 20],
+  "charger_little": [40, 20],
   "charger_grandes": [80, 20],
   "charger_lourdes": [100, 40],
   "charger_explosives": [200, 60]

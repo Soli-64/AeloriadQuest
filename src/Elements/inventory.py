@@ -6,9 +6,9 @@ from src.Weapons.FireWeapon.fire_weapon import FireWeapon
 
 class InventoryButton(Button):
 
-    def __init__(self, _rect, _text, _ui_manager, _object_id, _container, _inv):
-        super().__init__(_rect, _text, _ui_manager, _object_id, _container)
-        self.inv = _inv
+    def __init__(self, rect, text, ui_manager, object_id, container, inv):
+        super().__init__(rect, text, ui_manager, object_id, container)
+        self.inv = inv
     def execute(self):
         self.inv.visible_info_zone = True
         self.inv.pressed_button_id = self.object_id.object_id
@@ -19,6 +19,7 @@ class Inventory(ParentElement):
         super().__init__(screen, './assets/json/graffics/inventory/style.json')
 
         self.game = game
+        self.screen = screen
 
         self.player = player
         self.items = player.inventory
@@ -33,6 +34,8 @@ class Inventory(ParentElement):
 
         self.weapon_panel, self.weapons_label = [None] * 2
 
+        self.charger_panel = None
+
         self.sub_info_panel = None
 
         self.visible_info_zone = False
@@ -43,24 +46,20 @@ class Inventory(ParentElement):
         self.buttons = []
         self.elements_weapons = []
 
-        self.resize(screen)
+        self.resize()
         self.draw_items(self.focus)
 
     def set_btn_id(self, _id):
         self.visible_info_zone = True
         self.pressed_button_id = _id
 
-    def set_focus(self, _focus):
+    def set_focus(self, focus):
         self.visible_info_zone = False
         if self.info_panel is not None: self.info_panel.kill()
         self.pressed_button_id = None
-        self.focus = _focus
-        self.draw_items(self.focus)
+        self.focus = focus
 
-    def draw_items(self, _item):
-
-        if self.weapon_panel:
-            self.weapon_panel.kill()
+    def draw_items(self, item):
 
         self.elements = {}
         self.buttons = []
@@ -68,74 +67,65 @@ class Inventory(ParentElement):
         inter_x, inter_y = 10, 20
         x_index, y_index = 20, 60
         case_index, index = 0, 0
-        self.line_case = round((self.screen.get_size()[0] - 525) / (50 + inter_x)) - 1
+        self.line_case = round((self.screen.get_size()[0] - 525) / (50 + inter_x))
 
-        if _item == "weapons":
+        self.index = None
+        index = 0
 
-            self.index = None
-            index = 0
-
-            self.weapon_panel = Element(name='Panel',
+        self.items_panel = Element(name='Panel',
                                         rect=[(-2, 50), (self.screen.get_size()[0] - 500, self.screen.get_size()[1] - 250)],
                                         ui_manager=self.ui_manager,
-                                        object_id=Ids(_class_id='@weapon_panel', _object_id='').all,
+                                        object_id=Ids(_class_id='@weapon_panel', _object_id='#').all,
                                         container=self.panel
                                         ).UI
 
-            self.weapons_label = TextElement(name='Label',
-                                             rect=[(20, 10), (500, 50)],
-                                             text='ARMES',
-                                             ui_manager=self.ui_manager,
-                                             object_id=Ids(_class_id='@label', _object_id='#weapon_label').all,
-                                             container=self.weapon_panel
-                                             ).UI
+        self.items_label = TextElement(name='Label',
+                                         rect=[(20, 10), (500, 50)],
+                                         text=f'{item}',
+                                         ui_manager=self.ui_manager,
+                                         object_id=Ids(_class_id='@label', _object_id='#').all,
+                                         container=self.items_panel
+                                         ).UI
 
-            for i in self.items['weapons']:
+        for i in self.items[item]:
 
-                if case_index >= self.line_case:
-                    y_index += inter_y + 50
-                    x_index = 20
-                    case_index = 0
+            if case_index >= self.line_case:
+                y_index += inter_y + 50
+                x_index = 20
+                case_index = 0
 
-                panel = Element(name='Panel',
-                                rect=[(x_index, y_index), (50, 50)],
-                                ui_manager=self.ui_manager,
-                                object_id=None,
-                                container=self.weapon_panel
-                                ).UI
+            panel = Element(name='Panel',
+                            rect=[(x_index, y_index), (50, 50)],
+                            ui_manager=self.ui_manager,
+                            object_id=None,
+                            container=self.items_panel
+                            ).UI
 
-                image = ImageElement(rect=[(2, 2), (40, 40)],
-                                     img= i.item_image,
-                                     ui_manager=self.ui_manager,
-                                     object_id=None,
-                                     container=panel
-                                     ).UI
+            image = ImageElement(rect=[(2, 2), (40, 40)],
+                                 img= i.item_image,
+                                 ui_manager=self.ui_manager,
+                                 object_id=None,
+                                 container=panel
+                                 ).UI
 
-                button = InventoryButton(
-                    _rect=[(0, 0), (50, 50)],
-                    _ui_manager=self.ui_manager,
-                    _text="",
-                    _object_id=Ids('@case_button', f'#weapon{index}').all,
-                    _container=panel,
-                    _inv=self
-                )
-                self.game.event_buttons[f'#weapon{index}'] = button
+            button = InventoryButton(
+                rect=[(0, 0), (50, 50)],
+                ui_manager=self.ui_manager,
+                text="",
+                object_id=Ids('@case_button', f'#{item}{index}').all,
+                container=panel,
+                inv=self
+            )
+            self.game.event_buttons[f'#{item}{index}'] = button
 
-                self.elements[f'#weapon{index}'] = i
-                x_index += (inter_x + 50)
-                case_index += 1
-                index += 1
+            self.elements[f'#{item}{index}'] = i
+            x_index += (inter_x + 50)
+            case_index += 1
+            index += 1
 
-        elif _item == "objects":
-            self.index = None
+    def resize(self):
 
-    def resize(self, _screen):
-
-        self.set_manager(_screen, './assets/json/graffics/inventory/style.json')
-        self.screen = _screen
-
-        if self.panel is not None:
-            self.panel.kill()
+        self.set_manager(self.screen, './assets/json/graffics/inventory/style.json')
 
         self.panel = Element(name='Panel',
                              rect=[(120, 100), (self.screen.get_size()[0] - 150, self.screen.get_size()[1] - 200)],
@@ -161,16 +151,15 @@ class Inventory(ParentElement):
                                             )
         self.game.event_buttons['#weapon_tab_button'] = self.weapon_tab_button
 
-        self.objects_tab_button = EventButton(
+        self.charger_tab_button = EventButton(
                                             rect=[(100, 0), (100, 50)],
                                             text="Objets",
                                             ui_manager=self.ui_manager,
-                                            object_id=Ids(_class_id='@', _object_id='#object_tab_button').all,
+                                            object_id=Ids(_class_id='@', _object_id='#charger_tab_button').all,
                                             container=self.tab_panel,
-                                            func= lambda: self.set_focus("objects")
+                                            func= lambda: self.set_focus("chargers")
                                             )
-        self.game.event_buttons['#object_tab_button'] = self.objects_tab_button
-
+        self.game.event_buttons['#charger_tab_button'] = self.charger_tab_button
 
         self.info_panel = Element(name='Panel',
                                   rect=[(self.screen.get_size()[0] - 500, -3), (350, self.screen.get_size()[1] - 200)],
@@ -179,9 +168,12 @@ class Inventory(ParentElement):
                                   container=self.panel
                                   ).UI
 
+        self.draw_items(self.focus)
+
     def info_zone(self):
 
         target_element = self.elements[f'{self.pressed_button_id}']
+
 
         if self.sub_info_panel is not None:
             self.sub_info_panel.kill()

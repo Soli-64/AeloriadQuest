@@ -82,13 +82,6 @@ class TabPanel:
                           container=self.container
                           ).UI
 
-
-        """Panel(rect=rect,
-                        ui_manager=self.ui_manager,
-                        ids=self.object_id,
-                        container=container
-                        )"""
-
 class Button:
 
     def __init__(self, rect, text, ui_manager, object_id, container):
@@ -106,7 +99,6 @@ class Button:
                                            object_id=self.object_id,
                                            container=self.container
                                            )
-
 
 class EventButton(Button):
 

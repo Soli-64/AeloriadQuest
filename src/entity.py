@@ -1,5 +1,4 @@
 import pygame
-#from src.Enemy.enemy import Enemy
 from src.animation import AnimateSprite
 
 
@@ -8,7 +7,6 @@ class Entity(AnimateSprite):
         super().__init__(path)
 
         self.image_path = path
-        print(self.image_path)
         self.images = {
             'down': self.get_images(self.image_path, 0),
             'left': self.get_images(self.image_path, 32),
@@ -87,5 +85,4 @@ class Entity(AnimateSprite):
         self.position = self.old_position
         self.rect.topleft = self.position
         self.feet.midbottom = self.rect.midbottom
-        if self.isEnemy():
-            self.modifyDirection()
+        if self.isEnemy(): self.modifyDirection()

@@ -12,16 +12,21 @@ class Market(ParentElement):
         self.player = player
 
         self.game = game
+        self.screen = screen
 
-        self.focus = 'weapon'
+        self.focus = 'weapons'
+
+        self.panel = None
+
+        self.prices = {}
 
         self.stock = {
             "weapons": [],
-            "objects": []
+            "chargers": []
         }
 
         self.get_prices()
-        self.resize(screen)
+        self.resize()
 
     def set_focus(self, focus):
         self.focus = focus
@@ -29,15 +34,15 @@ class Market(ParentElement):
     def sell_item(self, price, item_type, item, id):
         if self.player.money >= price:
             self.player.remove_money(price)
-            self.player.add_weapons([item])
-            self.stock['weapons'].pop(id)
-            self.resize(self.screen)
+            self.player.add_objects([item], item_type)
+            self.stock[item_type].pop(id)
+            self.resize()
 
     def get_prices(self):
         with open('./assets/json/items/price.json', 'r') as file:
-            self.prices = json.load((file))
+            self.prices = json.load(file)
 
-    def new_article(self, pos, container, item, index, id):
+    def new_article(self, pos, container, item, index, id, item_type):
         panel = Element(name='Panel',
                         rect=[(pos[0], pos[1]), (100, 200)],
                         ui_manager=self.ui_manager,
@@ -55,14 +60,34 @@ class Market(ParentElement):
                              ui_manager=self.ui_manager,
                              object_id=Ids(_class_id='@v_panel', _object_id=f'#buy_button{index}').all,
                              container=panel,
-                             func=lambda: self.sell_item(self.prices[item.name][0], 'weapon', item, id)
+                             func=lambda: self.sell_item(self.prices[item.name][0], item_type, item, id)
                              )
         self.game.event_buttons[f'#buy_button{index}'] = button
 
-    def resize(self, screen):
+    def draw_articles(self, item_type):
 
-        self.set_manager(screen, './assets/json/graffics/market/style.json')
-        self.screen = screen
+        line_width = self.screen.get_size()[0] - (self.screen.get_size()[0] / 2)
+        article_by_line = int(line_width / 110)
+        line_index = 0
+        column_index = 0
+        position = [5, 5]
+        index = 0
+
+        for item in self.stock[item_type]:
+            if line_index >= article_by_line - 1:
+                column_index += 1
+                position[1] += 210
+                position[0] = 5
+                self.new_article(position, self.articles, item, index, index, item_type)
+            else:
+                position[0] += 110
+                line_index += 1
+                self.new_article(position, self.articles, item, index, index, item_type)
+                index += 1
+
+    def resize(self):
+
+        self.set_manager(self.screen, './assets/json/graffics/market/style.json')
 
         self.panel = Element(name='Panel',
                              rect=[(100, 70), (self.screen.get_size()[0] - 200, self.screen.get_size()[1] - 150)],
@@ -80,19 +105,21 @@ class Market(ParentElement):
         self.tab_weapon = EventButton(rect=[(0, 0), (120, 60)],
                                      text='Armes',
                                      ui_manager=self.ui_manager,
-                                     object_id=Ids(_class_id='@tab_button', _object_id='#').all,
+                                     object_id=Ids(_class_id='@tab_button', _object_id='#market_weapons_tab').all,
                                      container=self.tab_panel,
-                                     func= lambda: self.set_focus('weapon')
+                                     func= lambda: self.set_focus('weapons')
                                      )
+        self.game.event_buttons['#market_weapons_tab'] = self.tab_weapon
 
-        self.tab_objects = EventButton(rect=[(120, 0), (120, 60)],
+
+        self.tab_chargers = EventButton(rect=[(120, 0), (120, 60)],
                                          text='Objets',
                                          ui_manager=self.ui_manager,
-                                         object_id=Ids(_class_id='@tab_panel', _object_id='#market_object_tab'),
+                                         object_id=Ids(_class_id='@tab_panel', _object_id='#market_chargers_tab').all,
                                          container=self.tab_panel,
-                                         func=lambda: self.set_focus('object')
+                                         func=lambda: self.set_focus('chargers')
                                          )
-        self.game.event_buttons['#market_object_tab'] = self.tab_objects
+        self.game.event_buttons['#market_chargers_tab'] = self.tab_chargers
 
         self.shop_zone = Element(name='Panel',
                                  rect=[(0, 60), (self.screen.get_size()[0] - (self.screen.get_size()[0] / 2), self.screen.get_size()[1] - 195)],
@@ -108,21 +135,4 @@ class Market(ParentElement):
                                 container=self.shop_zone
                                 ).UI
 
-        line_width = self.screen.get_size()[0] - (self.screen.get_size()[0] / 2)
-        article_by_line = int(line_width / 110)
-        line_index = 0
-        column_index = 0
-        position = [5, 5]
-        index = 0
-
-        for item in self.stock['weapons']:
-            if line_index >= article_by_line - 1:
-                column_index += 1
-                position[1] += 210
-                position[0] = 5
-                self.new_article(position, self.articles, item, index, index)
-            else:
-                position[0] += 110
-                line_index += 1
-                self.new_article(position, self.articles, item, index, index)
-                index += 1
+        self.draw_articles(self.focus)
